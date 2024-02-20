@@ -6,6 +6,8 @@ import { ulid } from 'ulid';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 import { ClsModule } from 'nestjs-cls';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 import mongoose from 'mongoose';
 
 mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
@@ -45,6 +47,8 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
         },
       },
     }),
+    AuthModule,
+    UserModule,
    
   ],
   controllers: [AppController],
