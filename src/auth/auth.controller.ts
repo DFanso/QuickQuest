@@ -22,6 +22,8 @@ import {
 import { UserService } from 'src/user/user.service';
 import { UserLoginDto } from './dto/user-login.dto';
 import { VerifyEmailDto } from './dto/verfiy-email.dto';
+import { ConfirmForgotPasswordDto } from './dto/confirm-forgot-password.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @ApiTags('auth')
 @Controller({ path: 'auth', version: '1' })
@@ -44,9 +46,7 @@ export class AuthController {
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     try {
-      const user = await this.cognitoService.registerUser(
-        createUserDto
-      );
+      const user = await this.cognitoService.registerUser(createUserDto);
       return user;
     } catch (err) {
       throw new HttpException(`${err.message}`, HttpStatus.BAD_REQUEST);
@@ -77,9 +77,49 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
     try {
-      console.log(verifyEmailDto);
       await this.cognitoService.verifyEmail(verifyEmailDto);
       return { statusCode: 200, message: 'Email verified successfully' };
+    } catch (error) {
+      throw new HttpException(`${error.message}`, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @ApiOperation({ summary: 'Initiate forgot password process' })
+  @ApiBody({ type: ForgotPasswordDto })
+  @ApiResponse({ status: 200, description: 'Verification code sent' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @Post('forgot-password')
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    try {
+      await this.cognitoService.forgotPassword(forgotPasswordDto.email);
+      return {
+        statusCode: 200,
+        message:
+          'Verification code sent to your email. Please check your inbox.',
+      };
+    } catch (error) {
+      throw new HttpException(`${error.message}`, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @ApiOperation({ summary: 'Confirm new password with verification code' })
+  @ApiBody({ type: ConfirmForgotPasswordDto })
+  @ApiResponse({ status: 200, description: 'Password reset successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @Post('confirm-forgot-password')
+  async confirmForgotPassword(
+    @Body() confirmForgotPasswordDto: ConfirmForgotPasswordDto,
+  ) {
+    try {
+      await this.cognitoService.confirmForgotPassword(
+        confirmForgotPasswordDto.email,
+        confirmForgotPasswordDto.confirmationCode,
+        confirmForgotPasswordDto.newPassword,
+      );
+      return {
+        statusCode: 200,
+        message: 'Your password has been reset successfully.',
+      };
     } catch (error) {
       throw new HttpException(`${error.message}`, HttpStatus.BAD_REQUEST);
     }
