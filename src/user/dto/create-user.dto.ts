@@ -17,6 +17,9 @@ class LocationDto {
 }
 
 export class CreateUserDto {
+
+  userId: string;
+
   @ApiProperty({ example: 'John', description: 'First Name' })
   @IsNotEmpty()
   @IsString()
