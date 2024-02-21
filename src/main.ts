@@ -26,10 +26,10 @@ async function bootstrap() {
     }),
   );
   const config = new DocumentBuilder()
-    .setTitle('Service-hub API')
-    .setDescription('Service-hub Backend API')
+    .setTitle('Task_Trek API')
+    .setDescription('Task_Trek Backend API')
     .setVersion('1.0')
-    .addTag('Service-hub')
+    .addTag('Task_Trek')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
