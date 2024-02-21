@@ -2,14 +2,21 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document, Types } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
-import { IsEmail, IsEnum, IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+  ValidateNested,
+} from 'class-validator';
 import { UserType, UserStatus } from '../../Types/user.types';
 
 export type UserDocument = User & Document;
 
 @Schema({ timestamps: true })
 export class User {
-
   @Prop({ required: true, unique: true })
   userId: string;
 
@@ -28,6 +35,26 @@ export class User {
   @Prop({ required: true, unique: true })
   email: string;
 
+  @ApiProperty({
+    example: 'A detailed about me section.',
+    description: 'About Me',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @Prop()
+  aboutMe?: string;
+
+  @ApiProperty({
+    type: [String],
+    description: 'Array of service IDs',
+    required: false,
+  })
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Service' }] })
+  services?: Types.ObjectId[];
+
   @ApiProperty({ enum: UserType, description: 'User Type' })
   @IsEnum(UserType)
   @Prop({ type: String, enum: UserType, default: UserType.Customer })
@@ -41,26 +68,29 @@ export class User {
   @ApiProperty({
     type: 'object',
     example: { type: 'Point', coordinates: [-73.856077, 40.848447] },
-    description: 'Location (Geospatial data using GeoJSON format for long, lat)',
+    description:
+      'Location (Geospatial data using GeoJSON format for long, lat)',
   })
   @Prop({
     type: {
       type: String,
       enum: ['Point'],
-      required: true
+      required: true,
     },
     coordinates: {
       type: [Number],
-      required: true
-    }
+      required: true,
+    },
   })
   location: {
     type: string;
     coordinates: number[];
   };
 
-
-  @ApiProperty({ example: 'http://example.com/profile.jpg', description: 'Profile Image URL' })
+  @ApiProperty({
+    example: 'http://example.com/profile.jpg',
+    description: 'Profile Image URL',
+  })
   @IsUrl()
   @Prop()
   profileImage: string;
@@ -72,6 +102,6 @@ const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.plugin(mongoosePaginate);
 
 // Create a 2dsphere index for supporting geospatial queries efficiently
-UserSchema.index({ 'location': '2dsphere' });
+UserSchema.index({ location: '2dsphere' });
 
 export { UserSchema };
