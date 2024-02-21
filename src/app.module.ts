@@ -9,6 +9,7 @@ import { ClsModule } from 'nestjs-cls';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import mongoose from 'mongoose';
+import { S3Module } from './s3/s3.module';
 
 mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
   Logger.verbose(
@@ -24,6 +25,13 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
       isGlobal: true,
       validationSchema: Joi.object({
         MONGO_URI: Joi.string().required(),
+        AWS_REGION: Joi.string().required(),
+        AWS_BUCKET_NAME: Joi.string().required(),
+        AWS_ACCESS_KEY_ID: Joi.string().required(),
+        AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+        COGNITO_USER_POOL_ID: Joi.string().required(),
+        COGNITO_CLIENT_ID: Joi.string().required(),
+        COGNITO_CLIENT_SECRET: Joi.string().required(),
       }),
     }),
     MongooseModule.forRoot(
@@ -49,7 +57,7 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
     }),
     AuthModule,
     UserModule,
-   
+    S3Module,
   ],
   controllers: [AppController],
   providers: [AppService],
