@@ -31,6 +31,13 @@ jobs:
         tags: dfanso/service-hub-backend:latest 
         build-args: |
           MONGO_URI=${{ secrets.MONGO_URI }}
+          AWS_REGION=${{ secrets.AWS_REGION }}
+          AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          COGNITO_USER_POOL_ID=${{ secrets.COGNITO_USER_POOL_ID }}
+          COGNITO_CLIENT_ID=${{ secrets.COGNITO_CLIENT_ID }}
+          COGNITO_CLIENT_SECRET=${{ secrets.COGNITO_CLIENT_SECRET }}
 
     - name: SSH and Deploy
       uses: appleboy/ssh-action@master
@@ -42,4 +49,4 @@ jobs:
           docker pull dfanso/service-hub-backend:latest
           docker stop service-hub-backend || true
           docker rm service-hub-backend || true
-          docker run -d --name service-hub-backend -p 3000:3000 dfanso/service-hub-backend:latest
+          docker run -d --name service-hub-backend -p 9000:9000 dfanso/service-hub-backend:latest
