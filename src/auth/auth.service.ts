@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ClsService } from 'nestjs-cls';
-import { AppClsStore, UserStatus } from 'src/Types/user.types';
+import { AppClsStore, UserStatus, UserType } from 'src/Types/user.types';
 import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 

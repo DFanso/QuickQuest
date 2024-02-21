@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { VerifyEmailDto } from './dto/verfiy-email.dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { AuthService } from './auth.service';
+import { UserType } from 'src/Types/user.types';
 
 @Injectable()
 export class CognitoService {
@@ -38,6 +39,12 @@ export class CognitoService {
   }
 
   async registerUser(createUserDto: CreateUserDto): Promise<any> {
+
+    if (createUserDto.type === UserType.Labor) {
+      if (!createUserDto.aboutMe || !createUserDto.services) {
+        throw new Error('AboutMe and services are required for users of type LABOR.');
+      }
+    }
     const secretHash = this.generateSecretHash(createUserDto.email);
     const params = {
       ClientId: this.clientId,
