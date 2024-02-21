@@ -4,6 +4,7 @@ import {
   ConfirmSignUpCommand,
   SignUpCommand,
   InitiateAuthCommand,
+  ForgotPasswordCommand, ConfirmForgotPasswordCommand 
 } from '@aws-sdk/client-cognito-identity-provider';
 import { fromEnv } from '@aws-sdk/credential-provider-env';
 import * as crypto from 'crypto';
@@ -157,4 +158,59 @@ export class CognitoService {
       }
     }
   }
+
+  async forgotPassword(email: string): Promise<any> {
+    const secretHash = this.generateSecretHash(email);
+    const params = {
+      ClientId: this.clientId,
+      Username: email,
+      SecretHash: secretHash,
+    };
+
+    try {
+      const data = await this.client.send(new ForgotPasswordCommand(params));
+      console.log('Forgot password initiated:', data);
+      return {
+        message: 'Verification code sent to your email.',
+      };
+    } catch (err) {
+      console.error('Error initiating forgot password:', err);
+      throw new HttpException(
+        'Failed to initiate password reset. Please try again later.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async confirmForgotPassword(email: string, confirmationCode: string, newPassword: string): Promise<any> {
+    const secretHash = this.generateSecretHash(email);
+    const params = {
+      ClientId: this.clientId,
+      SecretHash: secretHash,
+      Username: email,
+      ConfirmationCode: confirmationCode,
+      Password: newPassword,
+    };
+
+    try {
+      const data = await this.client.send(new ConfirmForgotPasswordCommand(params));
+      console.log('Password reset successful:', data);
+      return {
+        message: 'Password has been successfully reset.',
+      };
+    } catch (err) {
+      console.error('Error confirming new password:', err);
+      if (err.name === 'CodeMismatchException' || err.name === 'ExpiredCodeException') {
+        throw new HttpException(
+          'Invalid or expired verification code. Please try the reset process again.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      throw new HttpException(
+        'Failed to reset password. Please try again later.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
 }
