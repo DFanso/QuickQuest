@@ -141,6 +141,7 @@ export class CognitoService {
     try {
       const data = await this.client.send(new ConfirmSignUpCommand(params));
       console.log('Email verification successful:', data);
+      const user = await this.authService.verify(verifyEmailDto.email)
       return data;
     } catch (err) {
       console.error('Error during email verification:', err);
