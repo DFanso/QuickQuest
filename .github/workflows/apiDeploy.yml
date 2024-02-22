@@ -28,7 +28,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: dfanso/task-trek-backend:latest 
+        tags: dfanso/quick-quest_backend:latest 
         build-args: |
           MONGO_URI=${{ secrets.MONGO_URI }}
           AWS_REGION=${{ secrets.AWS_REGION }}
@@ -46,7 +46,7 @@ jobs:
         username: ${{ secrets.VPS_USERNAME }}
         password: ${{ secrets.VPS_PASSWORD }} 
         script: | 
-          docker pull dfanso/task-trek-backend:latest
-          docker stop task-trek-backend || true
-          docker rm task-trek-backend || true
-          docker run -d --name task-trek-backend -p 9000:9000 dfanso/task-trek-backend:latest
+          docker pull dfanso/quick-quest_backend:latest
+          docker stop quick-quest_backend || true
+          docker rm tquick-quest_backend || true
+          docker run -d --name quick-quest_backend -p 9000:9000 dfanso/quick-quest_backend:latest
