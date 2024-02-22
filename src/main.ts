@@ -26,10 +26,10 @@ async function bootstrap() {
     }),
   );
   const config = new DocumentBuilder()
-    .setTitle('Task_Trek API')
-    .setDescription('Task_Trek Backend API')
+    .setTitle('QuickQuest API')
+    .setDescription('QuickQuest Backend API')
     .setVersion('1.0')
-    .addTag('Task_Trek')
+    .addTag('QuickQuest')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
