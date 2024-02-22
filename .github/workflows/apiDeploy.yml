@@ -48,5 +48,5 @@ jobs:
         script: | 
           docker pull dfanso/quick-quest_backend:latest
           docker stop quick-quest_backend || true
-          docker rm tquick-quest_backend || true
+          docker rm quick-quest_backend || true
           docker run -d --name quick-quest_backend -p 9000:9000 dfanso/quick-quest_backend:latest
