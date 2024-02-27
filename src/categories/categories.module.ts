@@ -4,6 +4,7 @@ import { CategoriesController } from './categories.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ClsModule } from 'nestjs-cls';
 import { Category, CategorySchema } from './entities/category.entity';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { Category, CategorySchema } from './entities/category.entity';
       { name: Category.name, schema: CategorySchema },
     ]),
     ClsModule,
+    UserModule,
   ],
   controllers: [CategoriesController],
   providers: [CategoriesService],
