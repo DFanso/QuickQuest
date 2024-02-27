@@ -1,4 +1,4 @@
-name: Deploy to Ubuntu VPS
+name: Deploy API TO VPS
 
 on:
   push:
