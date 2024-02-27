@@ -1,10 +1,12 @@
+/* eslint-disable no-console */
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   CognitoIdentityProviderClient,
   ConfirmSignUpCommand,
   SignUpCommand,
   InitiateAuthCommand,
-  ForgotPasswordCommand, ConfirmForgotPasswordCommand 
+  ForgotPasswordCommand,
+  ConfirmForgotPasswordCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { fromEnv } from '@aws-sdk/credential-provider-env';
 import * as crypto from 'crypto';
@@ -21,7 +23,10 @@ export class CognitoService {
   private clientSecret: string;
   private userPoolId: string;
 
-  constructor(private configService: ConfigService, private readonly authService: AuthService,) {
+  constructor(
+    private configService: ConfigService,
+    private readonly authService: AuthService,
+  ) {
     this.clientId = this.configService.get<string>('COGNITO_CLIENT_ID');
     this.userPoolId = this.configService.get<string>('COGNITO_USER_POOL_ID');
     this.clientSecret = this.configService.get<string>('COGNITO_CLIENT_SECRET');
@@ -39,10 +44,11 @@ export class CognitoService {
   }
 
   async registerUser(createUserDto: CreateUserDto): Promise<any> {
-
     if (createUserDto.type === UserType.Labor) {
       if (!createUserDto.aboutMe || !createUserDto.services) {
-        throw new Error('AboutMe and services are required for users of type LABOR.');
+        throw new Error(
+          'AboutMe and services are required for users of type LABOR.',
+        );
       }
     }
     const secretHash = this.generateSecretHash(createUserDto.email);
@@ -55,28 +61,26 @@ export class CognitoService {
         {
           Name: 'email',
           Value: createUserDto.email,
-          
         },
 
-      {
-        Name: 'picture',
-        Value: createUserDto.profileImage
-      },
-      {
-        Name: 'given_name',
-        Value: createUserDto.firstName
-      },
-      {
-        Name: 'family_name',
-        Value: createUserDto.lastName
-      },
+        {
+          Name: 'picture',
+          Value: createUserDto.profileImage,
+        },
+        {
+          Name: 'given_name',
+          Value: createUserDto.firstName,
+        },
+        {
+          Name: 'family_name',
+          Value: createUserDto.lastName,
+        },
       ],
     };
 
     try {
       const data = await this.client.send(new SignUpCommand(params));
       console.log('Registration successful:', data);
-      
 
       createUserDto.userId = data.UserSub;
       console.log(createUserDto);
@@ -148,7 +152,7 @@ export class CognitoService {
     try {
       const data = await this.client.send(new ConfirmSignUpCommand(params));
       console.log('Email verification successful:', data);
-      const user = await this.authService.verify(verifyEmailDto.email)
+      await this.authService.verify(verifyEmailDto.email);
       return data;
     } catch (err) {
       console.error('Error during email verification:', err);
@@ -190,7 +194,11 @@ export class CognitoService {
     }
   }
 
-  async confirmForgotPassword(email: string, confirmationCode: string, newPassword: string): Promise<any> {
+  async confirmForgotPassword(
+    email: string,
+    confirmationCode: string,
+    newPassword: string,
+  ): Promise<any> {
     const secretHash = this.generateSecretHash(email);
     const params = {
       ClientId: this.clientId,
@@ -201,14 +209,19 @@ export class CognitoService {
     };
 
     try {
-      const data = await this.client.send(new ConfirmForgotPasswordCommand(params));
+      const data = await this.client.send(
+        new ConfirmForgotPasswordCommand(params),
+      );
       console.log('Password reset successful:', data);
       return {
         message: 'Password has been successfully reset.',
       };
     } catch (err) {
       console.error('Error confirming new password:', err);
-      if (err.name === 'CodeMismatchException' || err.name === 'ExpiredCodeException') {
+      if (
+        err.name === 'CodeMismatchException' ||
+        err.name === 'ExpiredCodeException'
+      ) {
         throw new HttpException(
           'Invalid or expired verification code. Please try the reset process again.',
           HttpStatus.BAD_REQUEST,
@@ -220,5 +233,4 @@ export class CognitoService {
       );
     }
   }
-
 }
