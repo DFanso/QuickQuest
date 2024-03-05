@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
-import { Service, ServiceDocument } from './entities/service.entity'; // Ensure you have a Service schema defined similarly to your User schema
+import { Service, ServiceDocument } from './entities/service.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { PaginateModel } from 'mongoose';
 
