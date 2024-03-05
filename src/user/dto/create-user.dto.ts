@@ -75,7 +75,7 @@ export class CreateUserDto {
   @IsArray()
   @IsOptional()
   @IsMongoId({ each: true })
-  services?: Types.ObjectId[];
+  services?: string;
 
   @ApiProperty({ enum: UserType, description: 'User Type' })
   @IsEnum(UserType)
