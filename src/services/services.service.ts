@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { Service, ServiceDocument } from './entities/service.entity'; // Ensure you have a Service schema defined similarly to your User schema
@@ -21,11 +26,21 @@ export class ServicesService {
     return this.serviceModel.find().exec();
   }
 
-  async findOne(id: string): Promise<ServiceDocument | null> {
-    const service = await this.serviceModel.findById(id).exec();
+  async findOne(filter: any): Promise<Service | null> {
+    const service = await this.serviceModel
+      .findOne(
+        filter,
+        Object.keys(this.serviceModel.schema.obj)
+          .map((key) => key)
+          .join(' '),
+      )
+      .populate('category')
+      .exec();
+
     if (!service) {
-      throw new HttpException('Service not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException(`Service not found`);
     }
+
     return service;
   }
 

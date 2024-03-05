@@ -38,7 +38,7 @@ export class ServicesController {
   @Get(':id')
   @ApiOperation({ summary: 'Get a service by ID' })
   findOne(@Param('id') id: string) {
-    return this.servicesService.findOne(id);
+    return this.servicesService.findOne({ _id: id });
   }
 
   @ApiBearerAuth()
