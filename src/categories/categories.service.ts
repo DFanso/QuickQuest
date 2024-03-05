@@ -1,4 +1,9 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category, CategoryDocument } from './entities/category.entity';
@@ -20,10 +25,17 @@ export class CategoriesService {
     return this.categoryModel.find().exec();
   }
 
-  async findOne(id: string): Promise<Category> {
-    const category = await this.categoryModel.findById(id).exec();
+  async findOne(filter: any): Promise<Category | null> {
+    const category = await this.categoryModel
+      .findOne(
+        filter,
+        Object.keys(this.categoryModel.schema.obj)
+          .map((key) => key)
+          .join(' '),
+      )
+      .exec();
     if (!category) {
-      throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException(`Category not found`);
     }
     return category;
   }
