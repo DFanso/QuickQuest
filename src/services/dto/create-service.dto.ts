@@ -33,7 +33,7 @@ export class CreateServiceDto {
     example: '62fc5b8f6d0b8b96d9f3c5e9',
   })
   @IsMongoId()
-  categoryID: string;
+  category: string;
 
   @ApiProperty({
     description: 'The starting price of the service',

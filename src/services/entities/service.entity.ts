@@ -41,7 +41,7 @@ export class Service {
   })
   @IsMongoId()
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Category' })
-  categoryID: Category | mongoose.Schema.Types.ObjectId;
+  category: Category | mongoose.Schema.Types.ObjectId;
 
   @ApiProperty({
     example: 100,
