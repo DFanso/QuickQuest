@@ -29,12 +29,16 @@ export class UserService {
   }
 
   async findOne(filter: any): Promise<UserDocument | null> {
-    return this.userModel.findOne(
-      filter,
-      Object.keys(this.userModel.schema.obj)
-        .map((key) => key)
-        .join(' '),
-    );
+    return this.userModel
+      .findOne(filter)
+      .populate({
+        path: 'services',
+        populate: {
+          path: 'category',
+          model: 'Category',
+        },
+      })
+      .exec();
   }
 
   async update(
