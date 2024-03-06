@@ -5,7 +5,7 @@ import { IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export type CategoryDocument = Category & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Category {
   @ApiProperty({
     example: 'Electronics',
