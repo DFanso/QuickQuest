@@ -26,7 +26,7 @@ export interface JwtPayload {
 
 export enum UserType {
   Admin = 'ADMIN',
-  Labor = 'LABOR',
+  Worker = 'WORKER',
   Customer = 'CUSTOMER',
 }
 

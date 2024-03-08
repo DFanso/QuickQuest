@@ -44,10 +44,10 @@ export class CognitoService {
   }
 
   async registerUser(createUserDto: CreateUserDto): Promise<any> {
-    if (createUserDto.type === UserType.Labor) {
+    if (createUserDto.type === UserType.Worker) {
       if (!createUserDto.aboutMe || !createUserDto.services) {
         throw new Error(
-          'AboutMe and services are required for users of type LABOR.',
+          'AboutMe and services are required for users of type Worker.',
         );
       }
     }
