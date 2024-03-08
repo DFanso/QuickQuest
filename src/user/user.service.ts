@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './entities/user.entity';
@@ -39,6 +44,33 @@ export class UserService {
         },
       })
       .exec();
+  }
+
+  async findNearByWorkers(userId: string): Promise<User[]> {
+    const customer = await this.userModel.findOne({ userId: userId }).exec();
+    if (!customer) {
+      throw new NotFoundException('Customer not found');
+    }
+
+    const radius = 10 / 6378.1;
+
+    const workers = await this.userModel
+      .find({
+        type: 'WORKER',
+        status: 'VERIFIED',
+        location: {
+          $geoWithin: {
+            $centerSphere: [customer.location.coordinates, radius],
+          },
+        },
+      })
+      .exec();
+
+    if (workers.length == 0) {
+      throw new HttpException('No Near By Workers', HttpStatus.BAD_REQUEST);
+    }
+
+    return workers;
   }
 
   async update(

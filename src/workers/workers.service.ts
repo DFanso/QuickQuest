@@ -1,15 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateWorkerDto } from './dto/create-worker.dto';
 import { UpdateWorkerDto } from './dto/update-worker.dto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class WorkersService {
+  constructor(private readonly userService: UserService) {}
+
   create(createWorkerDto: CreateWorkerDto) {
     return 'This action adds a new worker';
   }
 
-  findNearBy() {
-    return 'this will return nearBy Worker Around You';
+  findNearBy(userId: string) {
+    const workers = this.userService.findNearByWorkers(userId);
+    return workers;
   }
 
   findAll() {
