@@ -10,7 +10,7 @@ import { User, UserDocument } from './entities/user.entity';
 import { PaginateModel } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClsService } from 'nestjs-cls';
-import { AppClsStore, UserStatus } from '../Types/user.types';
+import { AppClsStore, UserStatus, UserType } from '../Types/user.types';
 
 @Injectable()
 export class UserService {
@@ -46,31 +46,47 @@ export class UserService {
       .exec();
   }
 
-  async findNearByWorkers(userId: string): Promise<User[]> {
-    const customer = await this.userModel.findOne({ userId: userId }).exec();
+  async findNearByWorkers(userId: string, serviceId?: string): Promise<User[]> {
+    const customer = await this.userModel.findOne({ userId }).exec();
     if (!customer) {
       throw new NotFoundException('Customer not found');
     }
 
     const radius = 10 / 6378.1;
 
+    // eslint-disable-next-line prefer-const
+    let query: any = {
+      type: UserType.Worker,
+      status: UserStatus.Verified,
+      location: {
+        $geoWithin: { $centerSphere: [customer.location.coordinates, radius] },
+      },
+    };
+
+    if (serviceId) {
+      query.services = serviceId;
+    }
+
     const workers = await this.userModel
-      .find({
-        type: 'WORKER',
-        status: 'VERIFIED',
-        location: {
-          $geoWithin: {
-            $centerSphere: [customer.location.coordinates, radius],
-          },
+      .find(query)
+      .populate({
+        path: 'services',
+        match: serviceId ? { _id: serviceId } : {},
+        populate: {
+          path: 'category',
+          model: 'Category',
         },
       })
       .exec();
 
-    if (workers.length == 0) {
-      throw new HttpException('No Near By Workers', HttpStatus.BAD_REQUEST);
+    if (workers.length === 0) {
+      throw new HttpException('No Nearby Workers', HttpStatus.BAD_REQUEST);
     }
 
-    return workers;
+    // Optionally filter out workers without any services after population
+    // This step is necessary if you are filtering by serviceId and want to exclude workers
+    // whose services do not match the serviceId after population
+    return workers.filter((worker) => worker.services);
   }
 
   async update(
