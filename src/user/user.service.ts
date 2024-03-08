@@ -67,7 +67,7 @@ export class UserService {
       query.services = serviceId;
     }
 
-    const workers = await this.userModel
+    let workers = await this.userModel
       .find(query)
       .populate({
         path: 'services',
@@ -84,9 +84,17 @@ export class UserService {
     }
 
     // Optionally filter out workers without any services after population
-    // This step is necessary if you are filtering by serviceId and want to exclude workers
-    // whose services do not match the serviceId after population
-    return workers.filter((worker) => worker.services);
+    if (serviceId) {
+      workers = workers.filter(
+        (worker) =>
+          Array.isArray(worker.services) &&
+          worker.services.some(
+            (service) => service._id.toString() === serviceId,
+          ),
+      );
+    }
+
+    return workers;
   }
 
   async update(
