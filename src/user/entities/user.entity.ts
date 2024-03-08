@@ -54,7 +54,7 @@ export class User {
   @IsOptional()
   @ValidateNested({ each: true })
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Service' }] })
-  services?: Service | mongoose.Schema.Types.ObjectId;
+  services?: Service[] | mongoose.Schema.Types.ObjectId[];
 
   @ApiProperty({ enum: UserType, description: 'User Type' })
   @IsEnum(UserType)

@@ -1,11 +1,16 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './entities/user.entity';
 import { PaginateModel } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClsService } from 'nestjs-cls';
-import { AppClsStore, UserStatus } from '../Types/user.types';
+import { AppClsStore, UserStatus, UserType } from '../Types/user.types';
 
 @Injectable()
 export class UserService {
@@ -39,6 +44,57 @@ export class UserService {
         },
       })
       .exec();
+  }
+
+  async findNearByWorkers(userId: string, serviceId?: string): Promise<User[]> {
+    const customer = await this.userModel.findOne({ userId }).exec();
+    if (!customer) {
+      throw new NotFoundException('Customer not found');
+    }
+
+    const radius = 10 / 6378.1;
+
+    // eslint-disable-next-line prefer-const
+    let query: any = {
+      type: UserType.Worker,
+      status: UserStatus.Verified,
+      location: {
+        $geoWithin: { $centerSphere: [customer.location.coordinates, radius] },
+      },
+    };
+
+    if (serviceId) {
+      query.services = serviceId;
+    }
+
+    let workers = await this.userModel
+      .find(query)
+      .populate({
+        path: 'services',
+        match: serviceId ? { _id: serviceId } : {},
+        populate: {
+          path: 'category',
+          model: 'Category',
+        },
+      })
+      .exec();
+
+    if (workers.length === 0) {
+      throw new HttpException('No Nearby Workers', HttpStatus.BAD_REQUEST);
+    }
+
+    // Optionally filter out workers without any services after population
+    if (serviceId) {
+      workers = workers.filter(
+        (worker) =>
+          Array.isArray(worker.services) &&
+          worker.services.some(
+            (service) => service._id.toString() === serviceId,
+          ),
+      );
+    }
+
+    return workers;
   }
 
   async update(
