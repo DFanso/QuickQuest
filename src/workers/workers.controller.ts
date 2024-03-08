@@ -9,11 +9,17 @@ import {
   UseGuards,
   HttpException,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { WorkersService } from './workers.service';
 import { CreateWorkerDto } from './dto/create-worker.dto';
 import { UpdateWorkerDto } from './dto/update-worker.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { ClsService } from 'nestjs-cls';
 import { AppClsStore } from 'src/Types/user.types';
@@ -34,12 +40,19 @@ export class WorkersController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get('/nearby')
-  findNearBy() {
+  @ApiOperation({ summary: 'Find nearby workers' })
+  @ApiQuery({
+    name: 'serviceId',
+    required: false,
+    type: String,
+    description: 'Optional service ID to filter workers',
+  })
+  async findNearBy(@Query('serviceId') serviceId?: string) {
     const context = this.clsService.get<AppClsStore>();
     if (!context || !context.user) {
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }
-    return this.workersService.findNearBy(context.user.id);
+    return this.workersService.findNearBy(context.user.id, serviceId);
   }
 
   @Get()

@@ -11,8 +11,8 @@ export class WorkersService {
     return 'This action adds a new worker';
   }
 
-  findNearBy(userId: string) {
-    const workers = this.userService.findNearByWorkers(userId);
+  findNearBy(userId: string, serviceId?: string) {
+    const workers = this.userService.findNearByWorkers(userId, serviceId);
     return workers;
   }
 
