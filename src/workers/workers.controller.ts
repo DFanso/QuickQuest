@@ -39,7 +39,7 @@ export class WorkersController {
     if (!context || !context.user) {
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }
-    return this.workersService.findNearBy();
+    return this.workersService.findNearBy(context.user.id);
   }
 
   @Get()
