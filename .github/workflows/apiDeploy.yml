@@ -26,7 +26,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: ./API
-        file: ./Dockerfile
+        file: ./API/Dockerfile
         push: true
         tags: dfanso/quick-quest_backend:latest 
         build-args: |
