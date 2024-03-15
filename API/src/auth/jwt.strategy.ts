@@ -6,6 +6,7 @@ import { AppClsStore } from 'src/Types/user.types';
 import { ConfigService } from '@nestjs/config';
 import * as jwksRsa from 'jwks-rsa';
 import * as jwt from 'jsonwebtoken';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -13,6 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly cls: ClsService,
     private readonly configService: ConfigService,
     private readonly logger: Logger,
+    private readonly userService: UserService,
   ) {
     const jwksUri = `https://cognito-idp.${configService.get<string>(
       'AWS_REGION',
@@ -57,8 +59,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!payload) {
       throw new UnauthorizedException('Invalid token');
     }
+
+    const user = await this.userService.findOne({ userId: payload.sub });
+
     this.cls.set<AppClsStore>('user', {
-      id: payload.sub,
+      id: user._id,
       email: payload.email,
     });
     return { userId: payload.sub, email: payload.email };

@@ -13,6 +13,7 @@ import { S3Module } from './s3/s3.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ServicesModule } from './services/services.module';
 import { WorkersModule } from './workers/workers.module';
+import { BidsModule } from './bids/bids.module';
 
 mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
   Logger.verbose(
@@ -64,6 +65,7 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
     CategoriesModule,
     ServicesModule,
     WorkersModule,
+    BidsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
