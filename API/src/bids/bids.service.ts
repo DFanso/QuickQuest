@@ -14,16 +14,36 @@ export class BidsService {
     return createdBid.save();
   }
 
-  findAll(): Promise<Bid[]> {
-    return this.bidModel.find().exec();
-  }
+  async findAll(
+    page: number,
+    limit: number,
+  ): Promise<{ bids: Bid[]; totalPages: number }> {
+    const skip = (page - 1) * limit;
 
+    const [bids, totalCount] = await Promise.all([
+      this.bidModel
+        .find()
+        .populate({
+          path: 'customer',
+          model: 'User',
+        })
+        .populate('service')
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.bidModel.countDocuments().exec(),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { bids, totalPages };
+  }
   async findOne(id: string): Promise<Bid> {
     return this.bidModel
       .findById(id)
       .populate({
         path: 'customer',
-        model: 'User', // Specify the referenced model for the user field
+        model: 'User',
       })
       .populate('service')
       .exec();
