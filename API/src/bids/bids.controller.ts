@@ -9,14 +9,21 @@ import {
   UseGuards,
   HttpException,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { BidsService } from './bids.service';
 import { CreateBidDto } from './dto/create-bid.dto';
 import { UpdateBidDto } from './dto/update-bid.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiTags,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { ClsService } from 'nestjs-cls';
 import { AppClsStore } from 'src/Types/user.types';
+import { Bid } from './entities/bid.entity';
 
 @ApiTags('bids')
 @Controller({ path: 'bids', version: '1' })
@@ -40,9 +47,14 @@ export class BidsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all bids' })
-  findAll() {
-    return this.bidsService.findAll();
+  @ApiOperation({ summary: 'Get all bids with pagination' })
+  @ApiQuery({ name: 'page', type: Number, required: false })
+  @ApiQuery({ name: 'limit', type: Number, required: false })
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ): Promise<{ bids: Bid[]; totalPages: number }> {
+    return this.bidsService.findAll(page, limit);
   }
 
   @Get(':id')
