@@ -18,8 +18,15 @@ export class BidsService {
     return this.bidModel.find().exec();
   }
 
-  findOne(id: string): Promise<Bid> {
-    return this.bidModel.findById(id).exec();
+  async findOne(id: string): Promise<Bid> {
+    return this.bidModel
+      .findById(id)
+      .populate({
+        path: 'customer',
+        model: 'User', // Specify the referenced model for the user field
+      })
+      .populate('service')
+      .exec();
   }
 
   async update(id: string, updateBidDto: UpdateBidDto): Promise<Bid> {
