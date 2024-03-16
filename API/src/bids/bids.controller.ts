@@ -10,6 +10,7 @@ import {
   HttpException,
   HttpStatus,
   Query,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { BidsService } from './bids.service';
 import { CreateBidDto } from './dto/create-bid.dto';
@@ -58,6 +59,19 @@ export class BidsController {
       throw new HttpException('Service not found', HttpStatus.NOT_FOUND);
     }
     return this.bidsService.create(createBidDto);
+  }
+
+  @Get('matching')
+  @ApiOperation({ summary: 'Get matching bids for the worker' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  async findMatchingBids(): Promise<Bid[]> {
+    const context = this.clsService.get<AppClsStore>();
+    if (!context || !context.user) {
+      throw new UnauthorizedException('Unauthorized User');
+    }
+    const userId = context.user.id;
+    return this.bidsService.findMatchingBids(userId);
   }
 
   @Get()
