@@ -10,6 +10,7 @@ import {
   HttpException,
   HttpStatus,
   Query,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { BidsService } from './bids.service';
 import { CreateBidDto } from './dto/create-bid.dto';
@@ -22,8 +23,10 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { ClsService } from 'nestjs-cls';
-import { AppClsStore } from 'src/Types/user.types';
+import { AppClsStore, UserType } from 'src/Types/user.types';
 import { Bid } from './entities/bid.entity';
+import { UserService } from 'src/user/user.service';
+import { ServicesService } from 'src/services/services.service';
 
 @ApiTags('bids')
 @Controller({ path: 'bids', version: '1' })
@@ -31,19 +34,44 @@ export class BidsController {
   constructor(
     private readonly bidsService: BidsService,
     private readonly clsService: ClsService,
+    private readonly userService: UserService,
+    private readonly serviceService: ServicesService,
   ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new bid' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  create(@Body() createBidDto: CreateBidDto) {
+  async create(@Body() createBidDto: CreateBidDto) {
     const context = this.clsService.get<AppClsStore>();
     if (!context || !context.user) {
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }
-    createBidDto.customer = context.user.id;
+    const user = await this.userService.findOne({ _id: context.user.id });
+    if (!user || user.type != UserType.Customer) {
+      throw new HttpException('Unauthorized User', HttpStatus.UNAUTHORIZED);
+    }
+    createBidDto.customer = user._id;
+    const service = await this.serviceService.findOne({
+      _id: createBidDto.service,
+    });
+    if (!service) {
+      throw new HttpException('Service not found', HttpStatus.NOT_FOUND);
+    }
     return this.bidsService.create(createBidDto);
+  }
+
+  @Get('matching')
+  @ApiOperation({ summary: 'Get matching bids for the worker' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  async findMatchingBids(): Promise<Bid[]> {
+    const context = this.clsService.get<AppClsStore>();
+    if (!context || !context.user) {
+      throw new UnauthorizedException('Unauthorized User');
+    }
+    const userId = context.user.id;
+    return this.bidsService.findMatchingBids(userId);
   }
 
   @Get()
