@@ -1,17 +1,60 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+/* eslint-disable no-console */
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateBidDto } from './dto/create-bid.dto';
 import { UpdateBidDto } from './dto/update-bid.dto';
 import { Bid, BidDocument } from './entities/bid.entity';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class BidsService {
-  constructor(@InjectModel(Bid.name) private bidModel: Model<BidDocument>) {}
+  constructor(
+    @InjectModel(Bid.name) private bidModel: Model<BidDocument>,
+    private readonly userService: UserService,
+  ) {}
 
   async create(createBidDto: CreateBidDto): Promise<Bid> {
     const createdBid = new this.bidModel(createBidDto);
     return createdBid.save();
+  }
+
+  async findMatchingBids(userId: string): Promise<Bid[]> {
+    const worker = await this.userService.findOne({ _id: userId });
+    if (!worker) {
+      throw new NotFoundException('Worker not found');
+    }
+
+    console.log('Worker:', worker);
+    console.log('Worker Services:', worker.services);
+
+    const serviceIds = worker.services.map((service) => service.id);
+
+    const bids = await this.bidModel
+      .find({
+        service: { $in: serviceIds },
+      })
+      .populate({
+        path: 'customer',
+        model: 'User',
+      })
+      .populate({
+        path: 'service',
+        populate: {
+          path: 'category',
+          model: 'Category',
+        },
+      })
+      .exec();
+
+    console.log('Matching Bids:', bids);
+
+    return bids;
   }
 
   async findAll(
