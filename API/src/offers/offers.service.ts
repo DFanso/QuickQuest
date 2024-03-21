@@ -1,26 +1,40 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
+import { Offer, OfferDocument } from './entities/offer.entity';
 
 @Injectable()
 export class OffersService {
-  create(createOfferDto: CreateOfferDto) {
-    return 'This action adds a new offer';
+  constructor(
+    @InjectModel(Offer.name) private offerModel: Model<OfferDocument>,
+  ) {}
+
+  async create(createOfferDto: CreateOfferDto): Promise<Offer> {
+    const createdOffer = new this.offerModel(createOfferDto);
+    return createdOffer.save();
   }
 
-  findAll() {
-    return `This action returns all offers`;
+  async findAll(): Promise<Offer[]> {
+    return this.offerModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} offer`;
+  async findOne(id: string): Promise<Offer> {
+    return this.offerModel.findById(id).exec();
   }
 
-  update(id: number, updateOfferDto: UpdateOfferDto) {
-    return `This action updates a #${id} offer`;
+  async update(id: string, updateOfferDto: UpdateOfferDto): Promise<Offer> {
+    return this.offerModel
+      .findByIdAndUpdate(id, updateOfferDto, { new: true })
+      .exec();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} offer`;
+  async remove(id: string): Promise<{ deleted: boolean; id: string }> {
+    const result = await this.offerModel.deleteOne({ _id: id }).exec();
+    if (result.deletedCount === 0) {
+      throw new HttpException('Offer not found', HttpStatus.NOT_FOUND);
+    }
+    return { deleted: true, id };
   }
 }
