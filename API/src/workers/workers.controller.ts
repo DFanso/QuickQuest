@@ -1,9 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
   Delete,
   UseGuards,
@@ -12,8 +9,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { WorkersService } from './workers.service';
-import { CreateWorkerDto } from './dto/create-worker.dto';
-import { UpdateWorkerDto } from './dto/update-worker.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -31,11 +26,6 @@ export class WorkersController {
     private readonly workersService: WorkersService,
     private readonly clsService: ClsService,
   ) {}
-
-  @Post()
-  create(@Body() createWorkerDto: CreateWorkerDto) {
-    return this.workersService.create(createWorkerDto);
-  }
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
@@ -63,11 +53,6 @@ export class WorkersController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.workersService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWorkerDto: UpdateWorkerDto) {
-    return this.workersService.update(+id, updateWorkerDto);
   }
 
   @Delete(':id')
