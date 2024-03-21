@@ -22,8 +22,12 @@ export class ServicesService {
     return createdService.save();
   }
 
-  async findAll(): Promise<ServiceDocument[]> {
-    return this.serviceModel.find().exec();
+  async findAll(category?: string): Promise<ServiceDocument[]> {
+    const query = this.serviceModel.find();
+    if (category) {
+      query.where('category').equals(category);
+    }
+    return query.populate('category').exec();
   }
 
   async findOne(filter: any): Promise<Service | null> {
