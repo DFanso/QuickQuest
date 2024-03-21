@@ -5,11 +5,12 @@ import {
   IsNumber,
   Min,
   IsMongoId,
+  IsDateString,
 } from 'class-validator';
 
 export class CreateBidDto {
   @IsNotEmpty()
-  @IsString()
+  @IsMongoId()
   customer: string;
 
   @ApiProperty({
@@ -20,9 +21,25 @@ export class CreateBidDto {
   @IsMongoId()
   service: string;
 
-  @ApiProperty({ description: 'Bid price', example: 100.5 })
+  @ApiProperty({ description: 'Bid budget', example: 1000 })
   @IsNotEmpty()
   @IsNumber()
   @Min(0)
-  price: number;
+  budget: number;
+
+  @ApiProperty({
+    description: 'Bid description',
+    example: 'This is a bid description',
+  })
+  @IsNotEmpty()
+  @IsString()
+  description: string;
+
+  @ApiProperty({
+    description: 'Bid expiration date',
+    example: '2023-06-30T23:59:59.999Z',
+  })
+  @IsNotEmpty()
+  @IsDateString()
+  expireDate: Date;
 }
