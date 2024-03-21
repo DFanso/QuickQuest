@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, Min } from 'class-validator';
+import { IsNotEmpty, IsNumber, Min, IsString } from 'class-validator';
 import { Service } from 'src/services/entities/service.entity';
 import * as mongoose from 'mongoose';
 import { User } from 'src/user/entities/user.entity';
@@ -23,12 +23,29 @@ export class Bid {
   @IsNotEmpty()
   service: Service;
 
-  @ApiProperty({ description: 'Bid price', example: 100.5 })
+  @ApiProperty({ description: 'Bid budget', example: 1000 })
   @Prop({ required: true })
   @IsNotEmpty()
   @IsNumber()
   @Min(0)
-  price: number;
+  budget: number;
+
+  @ApiProperty({
+    description: 'Bid description',
+    example: 'This is a bid description',
+  })
+  @Prop({ required: true })
+  @IsNotEmpty()
+  @IsString()
+  description: string;
+
+  @ApiProperty({
+    description: 'Bid expiration date',
+    example: '2023-06-30T23:59:59.999Z',
+  })
+  @Prop({ required: true, index: { expires: 0 } })
+  @IsNotEmpty()
+  expireDate: Date;
 }
 
 export const BidSchema = SchemaFactory.createForClass(Bid);
