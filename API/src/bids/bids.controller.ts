@@ -58,6 +58,12 @@ export class BidsController {
     if (!service) {
       throw new HttpException('Service not found', HttpStatus.NOT_FOUND);
     }
+    if (createBidDto.budget <= service.startingPrice) {
+      throw new HttpException(
+        'Budget too low for the service starting price',
+        HttpStatus.FORBIDDEN,
+      );
+    }
     return this.bidsService.create(createBidDto);
   }
 

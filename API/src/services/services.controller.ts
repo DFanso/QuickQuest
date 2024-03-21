@@ -9,11 +9,17 @@ import {
   UseGuards,
   HttpException,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { ClsService } from 'nestjs-cls';
 import { AppClsStore, UserType } from 'src/Types/user.types';
@@ -56,9 +62,15 @@ export class ServicesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all services' })
-  findAll() {
-    return this.servicesService.findAll();
+  @ApiQuery({
+    name: 'category',
+    required: false,
+    type: String,
+    description: 'Optional category ID to filter services',
+  })
+  @ApiOperation({ summary: 'Get all services filtered by category' })
+  findAll(@Query('category') category?: string) {
+    return this.servicesService.findAll(category);
   }
 
   @Get(':id')
