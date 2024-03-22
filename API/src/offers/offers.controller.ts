@@ -6,19 +6,40 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { OffersService } from './offers.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { Offer } from './entities/offer.entity';
+import { ServicesService } from 'src/services/services.service';
+import { AuthGuard } from '@nestjs/passport';
+import { AppClsStore, UserType } from 'src/Types/user.types';
+import { ClsService } from 'nestjs-cls';
+import { UserService } from 'src/user/user.service';
 
 @ApiTags('offers')
 @Controller('offers')
 export class OffersController {
-  constructor(private readonly offersService: OffersService) {}
+  constructor(
+    private readonly offersService: OffersService,
+    private readonly serviceService: ServicesService,
+    private readonly clsService: ClsService,
+    private readonly userService: UserService,
+  ) {}
 
   @Post()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Create a new offer' })
   @ApiBody({ type: CreateOfferDto })
   @ApiResponse({
@@ -26,7 +47,29 @@ export class OffersController {
     description: 'The offer has been successfully created',
     type: Offer,
   })
-  create(@Body() createOfferDto: CreateOfferDto) {
+  async create(@Body() createOfferDto: CreateOfferDto) {
+    const context = this.clsService.get<AppClsStore>();
+    if (!context || !context.user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+    const user = await this.userService.findOne({ _id: context.user.id });
+    if (!user || user.type != UserType.Worker) {
+      throw new HttpException('Unauthorized User', HttpStatus.UNAUTHORIZED);
+    }
+    createOfferDto.worker = user._id;
+    const service = await this.serviceService.findOne({
+      _id: createOfferDto.service,
+    });
+    if (!service) {
+      throw new HttpException('Service not found', HttpStatus.NOT_FOUND);
+    }
+    if (createOfferDto.price <= service.startingPrice) {
+      throw new HttpException(
+        'Price too low for the service starting price',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     return this.offersService.create(createOfferDto);
   }
 
@@ -45,7 +88,7 @@ export class OffersController {
   @ApiOperation({ summary: 'Get a single offer by ID' })
   @ApiResponse({ status: 200, description: 'The offer', type: Offer })
   findOne(@Param('id') id: string) {
-    return this.offersService.findOne(id);
+    return this.offersService.findOne({ _id: id });
   }
 
   @Patch(':id')

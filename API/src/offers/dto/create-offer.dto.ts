@@ -18,10 +18,7 @@ export class CreateOfferDto {
   @IsString()
   service: string;
 
-  @ApiProperty({ description: 'Labor', example: 500 })
-  @IsNotEmpty()
-  @IsString()
-  labor: string;
+  worker: string;
 
   @ApiProperty({ description: 'Price', example: 1000 })
   @IsNotEmpty()

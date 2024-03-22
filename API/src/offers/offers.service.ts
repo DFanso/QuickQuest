@@ -20,8 +20,12 @@ export class OffersService {
     return this.offerModel.find().exec();
   }
 
-  async findOne(id: string): Promise<Offer> {
-    return this.offerModel.findById(id).exec();
+  async findOne(filter: any): Promise<Offer> {
+    return this.offerModel
+      .findOne(filter)
+      .populate('worker')
+      .populate('service')
+      .exec();
   }
 
   async update(id: string, updateOfferDto: UpdateOfferDto): Promise<Offer> {
