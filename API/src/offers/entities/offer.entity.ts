@@ -22,7 +22,7 @@ export class Offer {
   @ApiProperty({ description: 'Labor', type: User })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   @IsNotEmpty()
-  labor: User;
+  worker: User;
 
   @ApiProperty({ description: 'Price', example: 1000 })
   @Prop({ required: true })
