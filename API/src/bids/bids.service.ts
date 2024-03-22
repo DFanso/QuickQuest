@@ -30,9 +30,6 @@ export class BidsService {
       throw new NotFoundException('Worker not found');
     }
 
-    console.log('Worker:', worker);
-    console.log('Worker Services:', worker.services);
-
     const serviceIds = worker.services.map((service) => service.id);
 
     const bids = await this.bidModel
@@ -51,8 +48,6 @@ export class BidsService {
         },
       })
       .exec();
-
-    console.log('Matching Bids:', bids);
 
     return bids;
   }
