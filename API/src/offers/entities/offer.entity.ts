@@ -67,7 +67,7 @@ export class Offer {
     description: 'Expiration date',
     example: '2023-07-31T23:59:59.999Z',
   })
-  @Prop({ required: true, index: { expires: 0 } })
+  @Prop({ required: true })
   @IsNotEmpty()
   expireDate: Date;
 }
