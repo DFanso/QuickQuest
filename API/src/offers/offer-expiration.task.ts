@@ -8,7 +8,7 @@ export class OfferExpirationTask {
 
   constructor(private readonly offerService: OffersService) {}
 
-  @Cron(CronExpression.EVERY_5_SECONDS)
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleExpiredOffers() {
     this.logger.log('Checking for expired offers...');
     try {
