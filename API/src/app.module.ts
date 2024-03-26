@@ -15,6 +15,7 @@ import { ServicesModule } from './services/services.module';
 import { WorkersModule } from './workers/workers.module';
 import { BidsModule } from './bids/bids.module';
 import { OffersModule } from './offers/offers.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
   Logger.verbose(
@@ -68,6 +69,7 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
     WorkersModule,
     BidsModule,
     OffersModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],
