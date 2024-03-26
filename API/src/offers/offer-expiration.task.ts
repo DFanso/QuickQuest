@@ -6,12 +6,13 @@ import { OffersService } from './offers.service';
 export class OfferExpirationTask {
   private readonly logger = new Logger(OfferExpirationTask.name);
 
-  constructor(private readonly offersService: OffersService) {}
+  constructor(private readonly offerService: OffersService) {}
 
   @Cron(CronExpression.EVERY_5_SECONDS)
   async handleExpiredOffers() {
+    this.logger.log('Checking for expired offers...');
     try {
-      await this.offersService.updateExpiredOffers();
+      await this.offerService.updateExpiredOffers();
       this.logger.log('Expired offers updated successfully');
     } catch (error) {
       this.logger.error('Failed to update expired offers:', error);

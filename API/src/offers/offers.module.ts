@@ -7,6 +7,7 @@ import { ServicesModule } from 'src/services/services.module';
 import { ClsModule } from 'nestjs-cls';
 import { UserModule } from 'src/user/user.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { OfferExpirationTask } from './offer-expiration.task';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     ServicesModule,
   ],
   controllers: [OffersController],
-  providers: [OffersService],
+  providers: [OffersService, OfferExpirationTask],
   exports: [OffersService],
 })
 export class OffersModule {}
