@@ -12,19 +12,19 @@ import { Service } from '../../services/entities/service.entity';
 import { JobStatus } from 'src/Types/jobs.types';
 
 export class CreateJobDto {
-  @ApiProperty({ type: Service })
+  @ApiProperty({
+    description: 'Service ID',
+    example: '647d9a6d7c9d44b9c6d9a6d7',
+  })
   @IsNotEmpty()
   service: Service;
 
-  @ApiProperty({ type: User })
   @IsNotEmpty()
   customer: User;
 
-  @ApiProperty({ type: User })
   @IsNotEmpty()
   labor: User;
 
-  @ApiProperty({ type: String })
   @IsOptional()
   @IsString()
   paypalPaymentId?: string;

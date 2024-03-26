@@ -17,7 +17,6 @@ export type JobDocument = Job & Document;
 
 @Schema({ timestamps: true })
 export class Job {
-  @ApiProperty({ type: Service })
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Service',
@@ -26,12 +25,10 @@ export class Job {
   @IsNotEmpty()
   service: Service;
 
-  @ApiProperty({ type: User })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   @IsNotEmpty()
   customer: User;
 
-  @ApiProperty({ type: User })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   @IsNotEmpty()
   labor: User;
