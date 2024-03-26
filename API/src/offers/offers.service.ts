@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
 import { Offer, OfferDocument } from './entities/offer.entity';
+import { OfferStatus } from 'src/Types/offer.types';
 
 @Injectable()
 export class OffersService {
@@ -40,5 +41,18 @@ export class OffersService {
       throw new HttpException('Offer not found', HttpStatus.NOT_FOUND);
     }
     return { deleted: true, id };
+  }
+
+  async updateExpiredOffers(): Promise<void> {
+    const currentDate = new Date();
+    const expiredOffers = await this.offerModel.find({
+      expireDate: { $lte: currentDate },
+      status: { $ne: OfferStatus.Expired },
+    });
+
+    for (const offer of expiredOffers) {
+      offer.status = OfferStatus.Expired;
+      await offer.save();
+    }
   }
 }
