@@ -45,14 +45,14 @@ export class OffersService {
 
   async updateExpiredOffers(): Promise<void> {
     const currentDate = new Date();
-    const expiredOffers = await this.offerModel.find({
+    const filter = {
       expireDate: { $lte: currentDate },
-      status: { $ne: OfferStatus.Expired },
-    });
+      status: OfferStatus.Pending,
+    };
+    const update = {
+      $set: { status: OfferStatus.Expired },
+    };
 
-    for (const offer of expiredOffers) {
-      offer.status = OfferStatus.Expired;
-      await offer.save();
-    }
+    await this.offerModel.updateMany(filter, update).exec();
   }
 }
