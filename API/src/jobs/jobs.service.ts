@@ -70,8 +70,19 @@ export class JobsService {
     return `This action returns all jobs`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} job`;
+  async findOne(id: string): Promise<Job> {
+    return this.jobModel
+      .findById(id)
+      .populate({
+        path: 'customer',
+        model: 'User',
+      })
+      .populate({
+        path: 'worker',
+        model: 'User',
+      })
+      .populate('service')
+      .exec();
   }
 
   update(id: number, updateJobDto: UpdateJobDto) {
