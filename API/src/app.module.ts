@@ -17,6 +17,7 @@ import { BidsModule } from './bids/bids.module';
 import { OffersModule } from './offers/offers.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { JobsModule } from './jobs/jobs.module';
+import { PaypalModule } from './paypal/paypal.module';
 
 mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
   Logger.verbose(
@@ -72,6 +73,7 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
     OffersModule,
     ScheduleModule.forRoot(),
     JobsModule,
+    PaypalModule,
   ],
   controllers: [AppController],
   providers: [AppService],
