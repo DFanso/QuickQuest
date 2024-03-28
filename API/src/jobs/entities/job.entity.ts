@@ -31,7 +31,7 @@ export class Job {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   @IsNotEmpty()
-  labor: User;
+  worker: User;
 
   @ApiProperty({ type: String })
   @Prop({ required: false })

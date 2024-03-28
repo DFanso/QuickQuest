@@ -23,7 +23,7 @@ export class CreateJobDto {
   customer: User;
 
   @IsNotEmpty()
-  labor: User;
+  worker: User;
 
   @IsOptional()
   @IsString()
