@@ -18,13 +18,13 @@ export class PaypalService {
     name: string;
     unit_price: string;
     quantity: string;
-    seats: number;
-    bookingID: string;
+    jobId: string;
   }): Promise<string> {
-    const totalAmount = (
-      parseFloat(details.unit_price) * parseInt(details.quantity)
-    ).toFixed(2);
-
+    const unitPrice = parseFloat(details.unit_price);
+    const quantity = parseInt(details.quantity);
+    const itemTotal = unitPrice * quantity;
+    const totalAmount = itemTotal.toFixed(2);
+  
     const request = new paypal.orders.OrdersCreateRequest();
     request.prefer('return=representation');
     request.requestBody({
@@ -46,12 +46,12 @@ export class PaypalService {
               name: details.name,
               unit_amount: {
                 currency_code: 'USD',
-                value: details.unit_price,
+                value: unitPrice.toFixed(2),
               },
-              quantity: details.quantity,
+              quantity: quantity.toString(),
             },
           ],
-          custom_id: details.bookingID,
+          custom_id: details.jobId,
         },
       ],
       application_context: {
@@ -63,7 +63,6 @@ export class PaypalService {
     try {
       const response = await this.paypalClient.execute(request);
       const order = response.result;
-
       const approvalUrl = order.links.find(
         (link) => link.rel === 'approve',
       ).href;

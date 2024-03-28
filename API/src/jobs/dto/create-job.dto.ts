@@ -53,4 +53,6 @@ export class CreateJobDto {
   @IsNotEmpty()
   @IsEnum(JobStatus)
   jobStatus: JobStatus;
+
+  paymentUrl: string;
 }
