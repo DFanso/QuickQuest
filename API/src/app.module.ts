@@ -40,6 +40,9 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
         COGNITO_USER_POOL_ID: Joi.string().required(),
         COGNITO_CLIENT_ID: Joi.string().required(),
         COGNITO_CLIENT_SECRET: Joi.string().required(),
+        PAYPAL_CLIENT_ID: Joi.string().required(),
+        PAYPAL_CLIENT_SECRET: Joi.string().required(),
+        FRONTEND_URL: Joi.string().required(),
       }),
     }),
     MongooseModule.forRoot(

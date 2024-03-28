@@ -19,6 +19,7 @@ export class PaypalController {
   async handleWebhook(@Body() body: any, @Res() res: Response) {
     console.log('Received PayPal webhook:', body);
     const jobId = body.resource.purchase_units[0].custom_id;
+    console.log(jobId);
 
     if (body.event_type === 'CHECKOUT.ORDER.APPROVED') {
       return res.status(HttpStatus.OK).send('Webhook received');

@@ -7,10 +7,14 @@ import { User } from 'src/user/entities/user.entity';
 import { JobStatus } from 'src/Types/jobs.types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { PaypalService } from 'src/paypal/paypal.service';
 
 @Injectable()
 export class JobsService {
-  constructor(@InjectModel(Job.name) private jobModel: Model<JobDocument>) {}
+  constructor(
+    @InjectModel(Job.name) private jobModel: Model<JobDocument>,
+    private paypalService: PaypalService,
+  ) {}
 
   async create(offer: Offer, customer: User): Promise<Job> {
     const createJobDto: CreateJobDto = {
@@ -21,10 +25,30 @@ export class JobsService {
       price: offer.price,
       orderedDate: new Date(),
       jobStatus: JobStatus.Processing,
+      paymentUrl: '',
     };
 
     const createdJob = new this.jobModel(createJobDto);
-    return createdJob.save();
+    await createdJob.save();
+
+    // Populate the service name
+    await createdJob.populate('service', 'name');
+
+    // Create a PayPal payment
+    const paymentDetails = {
+      name: createdJob.service.name,
+      unit_price: offer.price.toString(),
+      quantity: '1',
+      jobId: createdJob._id.toString(),
+    };
+
+    const approvalUrl = await this.paypalService.createJob(paymentDetails);
+
+    // Update the job with the payment URL
+    createdJob.paymentUrl = approvalUrl;
+    await createdJob.save();
+
+    return createdJob;
   }
 
   findAll() {
