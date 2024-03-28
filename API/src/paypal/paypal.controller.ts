@@ -38,7 +38,7 @@ export class PaypalController {
         const emailContent = await this.emailService.renderTemplate(
           'payment-confirmation.hbs',
           {
-            jobID: job.toString(),
+            jobID: jobId,
             serviceName: job.service.name,
             description: job.service.description,
             price: job.price,

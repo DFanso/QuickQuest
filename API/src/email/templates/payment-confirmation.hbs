@@ -1,44 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Payment Confirmation</title>
+  <title>Payment Confirmation</title>
 </head>
 <body style="font-family: Arial, sans-serif; color: #333;">
   <div style="max-width: 600px; margin: auto; border: 1px solid #eaeaea; padding: 20px;">
-
     <!-- Header with Larger Logo -->
     <div style="text-align: center; margin-bottom: 20px;">
       <img src="https://task-trek.s3.ap-southeast-1.amazonaws.com/QuickQuest.png" alt="QuickQuest Logo" style="max-width: 300px; margin-bottom: 10px;">
       <h2 style="color: #4FB8B3;">Payment Successful</h2>
     </div>
-
     <!-- Job ID and Details -->
     <div style="background-color: #f9f9f9; padding: 15px; margin-bottom: 20px;">
       <h3 style="color: #4FB8B3;">Job Details</h3>
-      <p><strong>Job ID:</strong> [Job ID]</p>
-      <p><strong>Service:</strong> [Service Name]</p>
-      <p><strong>Description:</strong> [Description]</p>
-      <p><strong>Price:</strong> $[Price]</p>
-      <p><strong>Date Ordered:</strong> [Ordered Date]</p>
+      <p><strong>Job ID:</strong> {{jobID}}</p>
+      <p><strong>Service:</strong> {{serviceName}}</p>
+      <p><strong>Description:</strong> {{description}}</p>
+      <p><strong>Price:</strong> ${{price}}</p>
+      <p><strong>Date Ordered:</strong> {{orderedDate}}</p>
     </div>
-
     <!-- Worker Details -->
     <div style="background-color: #e0f7fa; padding: 15px; margin-bottom: 20px;">
       <h3 style="color: #4FB8B3;">Worker Assigned</h3>
-      <p><strong>Name:</strong> [Worker Name]</p>
-      <p><strong>Contact:</strong> [Worker Contact]</p>
+      <p><strong>Name:</strong> {{workerName}}</p>
+      <p><strong>Contact:</strong> {{workerContact}}</p>
     </div>
-
     <!-- Confirmation Section -->
     <div style="text-align: center; margin-bottom: 20px;">
       <p>Your payment has been successfully processed, and the job is now confirmed. Your worker is successfully assigned and will attend and do their job within the period allocated.</p>
     </div>
-
     <!-- Footer -->
     <footer style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eaeaea;">
       <p>If you have any questions or require further assistance, please don't hesitate to <a href="mailto:support@quickquest.com" style="color: #4FB8B3;">contact us</a>.</p>
     </footer>
-
   </div>
 </body>
 </html>
