@@ -68,6 +68,9 @@ export class Job {
   @IsNotEmpty()
   @IsEnum(JobStatus)
   jobStatus: JobStatus;
+
+  @Prop({ required: false })
+  paymentUrl: string;
 }
 
 export const JobSchema = SchemaFactory.createForClass(Job);
