@@ -51,6 +51,21 @@ export class JobsService {
     return createdJob;
   }
 
+  async updateJobStatus(jobId: string): Promise<void> {
+    try {
+      const job = await this.jobModel.findOne({ _id: jobId });
+
+      if (!job) {
+        throw new Error(`Job not found with id: ${jobId}`);
+      }
+
+      job.jobStatus = JobStatus.Pending;
+      await job.save();
+    } catch (error) {
+      throw new Error(`Error updating job status: ${error.message}`);
+    }
+  }
+
   findAll() {
     return `This action returns all jobs`;
   }
