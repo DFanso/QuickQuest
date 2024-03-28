@@ -6,6 +6,7 @@ import { Response } from 'express';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { JobsService } from '../jobs/jobs.service';
+import { EmailService } from 'src/email/email.service';
 
 @ApiTags('paypal')
 @Controller({ path: 'paypal', version: '1' })
@@ -15,6 +16,7 @@ export class PaypalController {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly jobService: JobsService,
+    private readonly emailService: EmailService,
   ) {}
 
   @Post('/webhook')
@@ -29,6 +31,51 @@ export class PaypalController {
         await this.jobService.updateJobStatus(jobId);
 
         console.log(`Job status updated for jobId: ${jobId}`);
+
+        const job = await this.jobService.findOne(jobId);
+
+        // Render email content with job and worker details
+        const emailContent = await this.emailService.renderTemplate(
+          'payment-confirmation.hbs',
+          {
+            customerName: job.customer.firstName + ' ' + job.customer.lastName,
+            jobID: jobId,
+            serviceName: job.service.name,
+            description: job.service.description,
+            price: job.price,
+            orderedDate: job.orderedDate.toISOString(),
+            workerName: job.worker.firstName + ' ' + job.worker.lastName,
+            workerContact: job.worker.email,
+          },
+        );
+
+        const workerEmailContent = await this.emailService.renderTemplate(
+          'worker-assignment.hbs',
+          {
+            workerName: job.worker.firstName + ' ' + job.worker.lastName,
+            jobID: jobId,
+            serviceName: job.service.name,
+            description: job.service.description,
+            price: job.price,
+            orderedDate: job.orderedDate.toISOString(),
+            customerName: job.customer.firstName + ' ' + job.customer.lastName,
+            customerContact: job.customer.email,
+            loginUrl: 'https://quickquest.com/login', // Replace with your actual login URL
+          },
+        );
+
+        // Send email
+        await this.emailService.sendEmail(
+          [job.customer.email],
+          'Payment Confirmation',
+          emailContent,
+        );
+
+        await this.emailService.sendEmail(
+          [job.worker.email],
+          'New Job Assignment',
+          workerEmailContent,
+        );
       } catch (error) {
         console.error('Error updating job status:', error);
       }
