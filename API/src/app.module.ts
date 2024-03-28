@@ -18,6 +18,7 @@ import { OffersModule } from './offers/offers.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { JobsModule } from './jobs/jobs.module';
 import { PaypalModule } from './paypal/paypal.module';
+import { EmailModule } from './email/email.module';
 
 mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
   Logger.verbose(
@@ -43,6 +44,11 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
         PAYPAL_CLIENT_ID: Joi.string().required(),
         PAYPAL_CLIENT_SECRET: Joi.string().required(),
         FRONTEND_URL: Joi.string().required(),
+        BREVO_SMTP: Joi.string().required(),
+        BREVO_USER: Joi.string().required(),
+        BREVO_PASS: Joi.string().required(),
+        BREVO_SMTP_PORT: Joi.string().required(),
+        EMAIL_FROM_ADDRESS: Joi.string().required(),
       }),
     }),
     MongooseModule.forRoot(
@@ -77,6 +83,7 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
     ScheduleModule.forRoot(),
     JobsModule,
     PaypalModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

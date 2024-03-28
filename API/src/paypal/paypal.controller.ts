@@ -6,6 +6,7 @@ import { Response } from 'express';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { JobsService } from '../jobs/jobs.service';
+import { EmailService } from 'src/email/email.service';
 
 @ApiTags('paypal')
 @Controller({ path: 'paypal', version: '1' })
@@ -15,6 +16,7 @@ export class PaypalController {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly jobService: JobsService,
+    private readonly emailService: EmailService,
   ) {}
 
   @Post('/webhook')
@@ -29,6 +31,29 @@ export class PaypalController {
         await this.jobService.updateJobStatus(jobId);
 
         console.log(`Job status updated for jobId: ${jobId}`);
+
+        const job = await this.jobService.findOne(jobId);
+
+        // Render email content with job and worker details
+        const emailContent = await this.emailService.renderTemplate(
+          'payment-confirmation.hbs',
+          {
+            jobID: job.toString(),
+            serviceName: job.service.name,
+            description: job.service.description,
+            price: job.price,
+            orderedDate: job.orderedDate.toISOString(),
+            workerName: job.worker.firstName + ' ' + job.worker.lastName,
+            workerContact: job.worker.email, // Assuming you want to include worker's email
+          },
+        );
+
+        // Send email
+        await this.emailService.sendEmail(
+          [job.customer.email],
+          'Payment Confirmation',
+          emailContent,
+        );
       } catch (error) {
         console.error('Error updating job status:', error);
       }
