@@ -8,6 +8,7 @@ import { ClsModule } from 'nestjs-cls';
 import { UserModule } from 'src/user/user.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { OfferExpirationTask } from './offer-expiration.task';
+import { JobsModule } from 'src/jobs/jobs.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { OfferExpirationTask } from './offer-expiration.task';
     ClsModule,
     UserModule,
     ServicesModule,
+    JobsModule,
   ],
   controllers: [OffersController],
   providers: [OffersService, OfferExpirationTask],
