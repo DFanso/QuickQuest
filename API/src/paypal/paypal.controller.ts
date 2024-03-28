@@ -38,13 +38,29 @@ export class PaypalController {
         const emailContent = await this.emailService.renderTemplate(
           'payment-confirmation.hbs',
           {
+            customerName: job.customer.firstName + ' ' + job.customer.lastName,
             jobID: jobId,
             serviceName: job.service.name,
             description: job.service.description,
             price: job.price,
             orderedDate: job.orderedDate.toISOString(),
             workerName: job.worker.firstName + ' ' + job.worker.lastName,
-            workerContact: job.worker.email, // Assuming you want to include worker's email
+            workerContact: job.worker.email,
+          },
+        );
+
+        const workerEmailContent = await this.emailService.renderTemplate(
+          'worker-assignment.hbs',
+          {
+            workerName: job.worker.firstName + ' ' + job.worker.lastName,
+            jobID: jobId,
+            serviceName: job.service.name,
+            description: job.service.description,
+            price: job.price,
+            orderedDate: job.orderedDate.toISOString(),
+            customerName: job.customer.firstName + ' ' + job.customer.lastName,
+            customerContact: job.customer.email,
+            loginUrl: 'https://quickquest.com/login', // Replace with your actual login URL
           },
         );
 
@@ -53,6 +69,12 @@ export class PaypalController {
           [job.customer.email],
           'Payment Confirmation',
           emailContent,
+        );
+
+        await this.emailService.sendEmail(
+          [job.worker.email],
+          'New Job Assignment',
+          workerEmailContent,
         );
       } catch (error) {
         console.error('Error updating job status:', error);

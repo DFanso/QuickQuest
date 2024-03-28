@@ -8,8 +8,11 @@
     <!-- Header with Larger Logo -->
     <div style="text-align: center; margin-bottom: 20px;">
       <img src="https://task-trek.s3.ap-southeast-1.amazonaws.com/QuickQuest.png" alt="QuickQuest Logo" style="max-width: 300px; margin-bottom: 10px;">
-      <h2 style="color: #4FB8B3;">Payment Successful</h2>
+      <h2 style="color: #4FB8B3;">Payment Successful - Job Confirmation</h2>
     </div>
+    <!-- Greeting -->
+    <p>Dear {{customerName}},</p>
+    <p>Thank you for choosing QuickQuest for your service needs. We are pleased to inform you that your payment has been successfully processed, and your job is now confirmed.</p>
     <!-- Job ID and Details -->
     <div style="background-color: #f9f9f9; padding: 15px; margin-bottom: 20px;">
       <h3 style="color: #4FB8B3;">Job Details</h3>
@@ -22,16 +25,28 @@
     <!-- Worker Details -->
     <div style="background-color: #e0f7fa; padding: 15px; margin-bottom: 20px;">
       <h3 style="color: #4FB8B3;">Worker Assigned</h3>
+      <p>We have carefully selected a qualified and experienced worker to handle your job:</p>
       <p><strong>Name:</strong> {{workerName}}</p>
       <p><strong>Contact:</strong> {{workerContact}}</p>
+      <p>Your assigned worker will reach out to you shortly to discuss further details and arrange the service delivery.</p>
     </div>
-    <!-- Confirmation Section -->
+    <!-- Next Steps -->
+    <div style="margin-bottom: 20px;">
+      <h3 style="color: #4FB8B3;">What's Next?</h3>
+      <ol>
+        <li>Your worker will contact you to finalize the service details and schedule.</li>
+        <li>The worker will complete the job within the agreed-upon timeframe.</li>
+        <li>Once the job is completed, please log in to your QuickQuest account to review and provide feedback.</li>
+      </ol>
+    </div>
+    <!-- Customer Support -->
     <div style="text-align: center; margin-bottom: 20px;">
-      <p>Your payment has been successfully processed, and the job is now confirmed. Your worker is successfully assigned and will attend and do their job within the period allocated.</p>
+      <p>If you have any questions, concerns, or require further assistance, our customer support team is here to help.</p>
+      <a href="mailto:support@quickquest.com" style="display: inline-block; background-color: #4FB8B3; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Contact Customer Support</a>
     </div>
     <!-- Footer -->
     <footer style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eaeaea;">
-      <p>If you have any questions or require further assistance, please don't hesitate to <a href="mailto:support@quickquest.com" style="color: #4FB8B3;">contact us</a>.</p>
+      <p>Thank you for using QuickQuest. We look forward to serving you and ensuring your satisfaction.</p>
     </footer>
   </div>
 </body>
