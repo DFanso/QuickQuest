@@ -26,6 +26,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { AppClsStore, UserType } from 'src/Types/user.types';
 import { ClsService } from 'nestjs-cls';
 import { UserService } from 'src/user/user.service';
+import { JobsService } from 'src/jobs/jobs.service';
+import { Job } from 'src/jobs/entities/job.entity';
+import { OfferStatus } from 'src/Types/offer.types';
 
 @ApiTags('offers')
 @Controller('offers')
@@ -35,6 +38,7 @@ export class OffersController {
     private readonly serviceService: ServicesService,
     private readonly clsService: ClsService,
     private readonly userService: UserService,
+    private readonly jobService: JobsService,
   ) {}
 
   @Post()
@@ -71,6 +75,63 @@ export class OffersController {
     }
 
     return this.offersService.create(createOfferDto);
+  }
+
+  @ApiOperation({ summary: 'Accept an offer' })
+  @ApiResponse({
+    status: 200,
+    description: 'Offer accepted successfully',
+    type: Offer,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 404, description: 'Offer not found' })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':id/accept')
+  async acceptOffer(@Param('id') id: string): Promise<Job> {
+    try {
+      const context = this.clsService.get<AppClsStore>();
+      if (!context || !context.user) {
+        throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+      }
+      const user = await this.userService.findOne({ _id: context.user.id });
+      if (!user || user.type !== UserType.Customer) {
+        throw new HttpException('Unauthorized User', HttpStatus.UNAUTHORIZED);
+      }
+      const offer = await this.offersService.findOne({ _id: id });
+      if (
+        !offer ||
+        offer.status === OfferStatus.Expired ||
+        offer.status === OfferStatus.Accepted
+      ) {
+        throw new HttpException(
+          'Offer expired, accepted or not found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      const job = await this.jobService.create(offer, user);
+      if (job) {
+        const updateOfferDto: UpdateOfferDto = {
+          status: OfferStatus.Accepted,
+        };
+        await this.offersService.update(id, updateOfferDto);
+        return job;
+      } else {
+        throw new HttpException(
+          'Failed to create job',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        throw new HttpException(
+          'Internal Server Error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
   }
 
   @Get()
