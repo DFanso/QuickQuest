@@ -17,6 +17,7 @@ import { BidsModule } from './bids/bids.module';
 import { OffersModule } from './offers/offers.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { JobsModule } from './jobs/jobs.module';
+import { PaypalModule } from './paypal/paypal.module';
 
 mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
   Logger.verbose(
@@ -39,6 +40,9 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
         COGNITO_USER_POOL_ID: Joi.string().required(),
         COGNITO_CLIENT_ID: Joi.string().required(),
         COGNITO_CLIENT_SECRET: Joi.string().required(),
+        PAYPAL_CLIENT_ID: Joi.string().required(),
+        PAYPAL_CLIENT_SECRET: Joi.string().required(),
+        FRONTEND_URL: Joi.string().required(),
       }),
     }),
     MongooseModule.forRoot(
@@ -72,6 +76,7 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
     OffersModule,
     ScheduleModule.forRoot(),
     JobsModule,
+    PaypalModule,
   ],
   controllers: [AppController],
   providers: [AppService],
