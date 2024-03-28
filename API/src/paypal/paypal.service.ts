@@ -24,7 +24,6 @@ export class PaypalService {
     const quantity = parseInt(details.quantity);
     const itemTotal = unitPrice * quantity;
     const totalAmount = itemTotal.toFixed(2);
-  
     const request = new paypal.orders.OrdersCreateRequest();
     request.prefer('return=representation');
     request.requestBody({
