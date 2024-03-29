@@ -1,0 +1,38 @@
+<html>
+<head>
+  <title>Job Delivery Reminder</title>
+</head>
+<body style='font-family: Arial, sans-serif; color: #333;'>
+  <div style='max-width: 600px; margin: auto; border: 1px solid #eaeaea; padding: 20px;'>
+    <!-- Header with Larger Logo -->
+    <div style='text-align: center; margin-bottom: 20px;'>
+      <img src='https://task-trek.s3.ap-southeast-1.amazonaws.com/QuickQuest.png' alt='QuickQuest Logo' style='max-width: 300px; margin-bottom: 10px;' />
+      <h2 style='color: #4FB8B3;'>Job Delivery Reminder</h2>
+    </div>
+    <!-- Greeting -->
+    <p>Dear {{workerName}},</p>
+    <p>This is a friendly reminder that the following job is approaching its delivery date:</p>
+    <!-- Job ID and Details -->
+    <div style='background-color: #f9f9f9; padding: 15px; margin-bottom: 20px;'>
+      <h3 style='color: #4FB8B3;'>Job Details</h3>
+      <p><strong>Job ID:</strong> {{orderID}}</p>
+      <p><strong>Service:</strong> {{serviceName}}</p>
+      <p><strong>Description:</strong> {{description}}</p>
+      <p><strong>Delivery Date:</strong> {{deliveryDate}}</p>
+    </div>
+    <!-- Reminder -->
+    <div style='margin-bottom: 20px;'>
+      <p>Please ensure that you complete the job and deliver the final product or service by the specified delivery date.</p>
+    </div>
+    <!-- Contact Customer Support -->
+    <div style='text-align: center; margin-bottom: 20px;'>
+      <p>If you have any questions or concerns, please feel free to contact our customer support team.</p>
+      <a href='mailto:support@quickquest.com' style='display: inline-block; background-color: #4FB8B3; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 4px;'>Contact Customer Support</a>
+    </div>
+    <!-- Footer -->
+    <footer style='text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eaeaea;'>
+      <p>Thank you for your hard work and dedication. We appreciate your commitment to delivering quality services on time.</p>
+    </footer>
+  </div>
+</body>
+</html>
