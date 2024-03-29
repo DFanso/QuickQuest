@@ -35,17 +35,12 @@ export class CreateOfferDto {
   description: string;
 
   @ApiProperty({
-    description: 'Start date',
-    example: '2023-06-01T00:00:00.000Z',
+    description: 'Delivery date',
+    example: '2023-06-30T23:59:59.999Z',
   })
   @IsNotEmpty()
   @IsDateString()
-  startDate: Date;
-
-  @ApiProperty({ description: 'End date', example: '2023-06-30T23:59:59.999Z' })
-  @IsNotEmpty()
-  @IsDateString()
-  endDate: Date;
+  deliveryDate: Date;
 
   @ApiProperty({
     description: 'Offer status',
