@@ -58,6 +58,12 @@ export class Job {
   orderedDate: Date;
 
   @ApiProperty({ type: Date })
+  @Prop({ required: true })
+  @IsNotEmpty()
+  @IsDateString()
+  deliveryDate: Date;
+
+  @ApiProperty({ type: Date })
   @Prop({ required: false })
   @IsOptional()
   @IsDateString()
@@ -71,6 +77,7 @@ export class Job {
 
   @Prop({ required: false })
   paymentUrl: string;
+  _id: unknown;
 }
 
 export const JobSchema = SchemaFactory.createForClass(Job);
