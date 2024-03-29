@@ -49,6 +49,11 @@ export class CreateJobDto {
   @IsDateString()
   endDate?: Date;
 
+  @ApiProperty({ type: Date })
+  @IsOptional()
+  @IsDateString()
+  deliveryDate?: Date;
+
   @ApiProperty({ enum: JobStatus })
   @IsNotEmpty()
   @IsEnum(JobStatus)

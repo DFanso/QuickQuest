@@ -31,6 +31,7 @@ export class JobsService {
       description: offer.description,
       price: offer.price,
       orderedDate: new Date(),
+      deliveryDate: offer.deliveryDate,
       jobStatus: JobStatus.Processing,
       paymentUrl: '',
     };
@@ -240,6 +241,30 @@ export class JobsService {
     );
 
     await job.save();
+  }
+
+  async getJobsNearingDelivery(): Promise<Job[]> {
+    const reminderDays = 1;
+
+    // Calculate the date range for jobs nearing delivery
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + reminderDays);
+
+    // Query the database to find jobs with delivery dates within the range
+    const jobsNearingDelivery = await this.jobModel
+      .find({
+        deliveryDate: {
+          $gte: startDate,
+          $lte: endDate,
+        },
+        jobStatus: JobStatus.Pending,
+      })
+      .populate('worker', 'firstName lastName email')
+      .populate('customer', 'firstName lastName email')
+      .populate('service', 'name description');
+
+    return jobsNearingDelivery;
   }
 
   remove(id: number) {
