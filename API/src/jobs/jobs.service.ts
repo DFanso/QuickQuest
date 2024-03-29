@@ -1,10 +1,11 @@
 import {
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateJobDto } from './dto/create-job.dto';
-import { UpdateJobDto } from './dto/update-job.dto';
 import { Offer } from 'src/offers/entities/offer.entity';
 import { Job, JobDocument } from './entities/job.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -108,14 +109,13 @@ export class JobsService {
       );
     }
 
-    if (job.jobStatus !== 'PENDING') {
+    if (job.jobStatus !== JobStatus.Pending) {
       throw new BadRequestException(
         'Cannot cancel the order. The job is not in the PENDING status.',
       );
     }
 
     job.jobStatus = JobStatus.Cancelled;
-    
 
     const cancelledJob = await this.findOne(id);
     const refundAmount = cancelledJob.price * 0.95;
@@ -171,8 +171,75 @@ export class JobsService {
     await job.save();
   }
 
-  update(id: number, updateJobDto: UpdateJobDto) {
-    return `This action updates a #${id} job`;
+  async completeJob(jobId: string): Promise<void> {
+    const job = await this.jobModel.findById(jobId);
+    if (!job) {
+      throw new HttpException('Job not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (job.jobStatus == JobStatus.Processing) {
+      throw new HttpException(
+        'Job is in the PROCESSING state',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    job.jobStatus = JobStatus.Completed;
+
+    const completedJob = await this.findOne(jobId);
+
+    const emailContent = await this.emailService.renderTemplate(
+      'customer-order-completion.hbs',
+      {
+        customerName:
+          completedJob.customer.firstName +
+          ' ' +
+          completedJob.customer.lastName,
+        orderID: jobId,
+        serviceName: completedJob.service.name,
+        description: completedJob.service.description,
+        price: completedJob.price,
+        orderedDate: completedJob.orderedDate.toISOString(),
+        workerName:
+          completedJob.worker.firstName + ' ' + completedJob.worker.lastName,
+      },
+    );
+
+    // Calculate the worker's payment amount (90% of the total price)
+    const workerPayment = completedJob.price * 0.9;
+
+    // Render email content for worker
+    const workerEmailContent = await this.emailService.renderTemplate(
+      'worker-order-completion.hbs',
+      {
+        workerName:
+          completedJob.worker.firstName + ' ' + completedJob.worker.lastName,
+        orderID: jobId,
+        serviceName: completedJob.service.name,
+        description: completedJob.service.description,
+        price: completedJob.price,
+        workerPayment: workerPayment.toFixed(2), // Format the worker's payment amount to two decimal places
+        orderedDate: completedJob.orderedDate.toISOString(),
+        customerName:
+          completedJob.customer.firstName +
+          ' ' +
+          completedJob.customer.lastName,
+      },
+    );
+
+    await this.emailService.sendEmail(
+      [completedJob.customer.email],
+      'Order Completion Notification',
+      emailContent,
+    );
+
+    await this.emailService.sendEmail(
+      [completedJob.worker.email],
+      'Job Completed - Congratulations!',
+      workerEmailContent,
+    );
+
+    await job.save();
   }
 
   remove(id: number) {
