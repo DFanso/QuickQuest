@@ -7,16 +7,23 @@ import {
   UseGuards,
   HttpException,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { FeedbacksService } from './feedbacks.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { ClsService } from 'nestjs-cls';
 import { UserService } from 'src/user/user.service';
 import { AppClsStore, UserType } from 'src/Types/user.types';
 import { JobsService } from 'src/jobs/jobs.service';
 import { JobStatus } from 'src/Types/jobs.types';
+import { Types } from 'mongoose';
 
 @ApiTags('feedback')
 @Controller({ path: 'feedback', version: '1' })
@@ -58,8 +65,41 @@ export class FeedbacksController {
 
   @Get()
   @ApiOperation({ summary: 'Get all feedback' })
-  findAll() {
-    return this.feedbackService.findAll();
+  @ApiQuery({
+    name: 'worker',
+    required: false,
+    description: 'Filter feedback by worker ID',
+    type: String,
+  })
+  @ApiQuery({
+    name: 'service',
+    required: false,
+    description: 'Filter feedback by service ID',
+    type: String,
+  })
+  @ApiQuery({
+    name: 'customer',
+    required: false,
+    description: 'Filter feedback by customer ID',
+    type: String,
+  })
+  findAll(
+    @Query('worker') worker?: string,
+    @Query('service') service?: string,
+    @Query('customer') customer?: string,
+  ) {
+    const filter: any = {};
+    if (worker) {
+      filter.worker = new Types.ObjectId(worker);
+    }
+    if (service) {
+      filter.service = new Types.ObjectId(service);
+    }
+    if (customer) {
+      filter.customer = new Types.ObjectId(customer);
+    }
+    console.log(filter);
+    return this.feedbackService.findAll(filter);
   }
 
   @Get(':id')

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, Max, Min } from 'class-validator';
 import { Job } from 'src/jobs/entities/job.entity';
@@ -11,19 +11,19 @@ export class Feedback {
   @ApiProperty({ description: 'Reference to the Job the feedback is about' })
   @IsNotEmpty()
   @Prop({ type: Types.ObjectId, ref: 'Job', required: true })
-  job: Job;
+  job: Job | mongoose.Schema.Types.ObjectId;
 
   @ApiProperty({ description: 'Reference to the customer' })
   @Prop({ type: Types.ObjectId, ref: 'User', required: false })
-  customer: User;
+  customer: User | mongoose.Schema.Types.ObjectId;
 
   @ApiProperty({ description: 'Reference to the worker' })
   @Prop({ type: Types.ObjectId, ref: 'User', required: false })
-  worker: User;
+  worker: User | mongoose.Schema.Types.ObjectId;
 
   @ApiProperty({ description: 'Reference to the service' })
   @Prop({ type: Types.ObjectId, ref: 'Service', required: false })
-  service: Service;
+  service: Service | mongoose.Schema.Types.ObjectId;
 
   @ApiProperty({
     example: 'This is a feedback description.',
