@@ -9,22 +9,22 @@ import {
 } from 'class-validator';
 
 export class CreateFeedbackDto {
-  @ApiProperty({ description: 'ID of the Job the feedback is about' })
+  @ApiProperty({
+    description: 'ID of the Job the feedback is about',
+    example: '647d9a6d7c9d44b9c6d9a6d7',
+  })
   @IsNotEmpty()
   @IsMongoId()
   job: string;
 
-  @ApiProperty({ description: 'ID of the customer' })
   @IsNotEmpty()
   @IsMongoId()
   customer: string;
 
-  @ApiProperty({ description: 'ID of the worker' })
   @IsNotEmpty()
   @IsMongoId()
   worker: string;
 
-  @ApiProperty({ description: 'ID of the service' })
   @IsNotEmpty()
   @IsMongoId()
   service: string;
