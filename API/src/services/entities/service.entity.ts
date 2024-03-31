@@ -61,6 +61,7 @@ export class Service {
   @IsOptional()
   @Prop()
   imageUrl?: string;
+  _id: unknown;
 }
 
 const ServiceSchema = SchemaFactory.createForClass(Service);

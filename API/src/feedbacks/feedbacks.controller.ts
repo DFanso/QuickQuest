@@ -48,6 +48,11 @@ export class FeedbacksController {
     if (job.status !== JobStatus.Completed) {
       throw new HttpException('Job not Completed', HttpStatus.UNAUTHORIZED);
     }
+    createFeedbackDto.customer = context.user.id;
+    createFeedbackDto.worker = job.worker._id as string;
+    createFeedbackDto.service = job.service._id as string;
+    createFeedbackDto.job = job._id as string;
+
     return this.feedbackService.create(createFeedbackDto);
   }
 

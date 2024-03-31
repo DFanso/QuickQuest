@@ -14,15 +14,15 @@ export class Feedback {
   job: Job;
 
   @ApiProperty({ description: 'Reference to the customer' })
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'User', required: false })
   customer: User;
 
   @ApiProperty({ description: 'Reference to the worker' })
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'User', required: false })
   worker: User;
 
   @ApiProperty({ description: 'Reference to the service' })
-  @Prop({ type: Types.ObjectId, ref: 'Service', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'Service', required: false })
   service: Service;
 
   @ApiProperty({

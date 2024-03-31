@@ -95,6 +95,7 @@ export class User {
   @IsUrl()
   @Prop()
   profileImage: string;
+  _id: unknown;
 }
 
 const UserSchema = SchemaFactory.createForClass(User);
