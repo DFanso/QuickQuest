@@ -98,7 +98,6 @@ export class FeedbacksController {
     if (customer) {
       filter.customer = new Types.ObjectId(customer);
     }
-    console.log(filter);
     return this.feedbackService.findAll(filter);
   }
 
