@@ -19,6 +19,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { JobsModule } from './jobs/jobs.module';
 import { PaypalModule } from './paypal/paypal.module';
 import { EmailModule } from './email/email.module';
+import { FeedbacksModule } from './feedbacks/feedbacks.module';
 
 mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
   Logger.verbose(
@@ -84,6 +85,7 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
     JobsModule,
     PaypalModule,
     EmailModule,
+    FeedbacksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
