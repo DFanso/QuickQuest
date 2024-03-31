@@ -17,16 +17,10 @@ export class CreateFeedbackDto {
   @IsMongoId()
   job: string;
 
-  @IsNotEmpty()
-  @IsMongoId()
   customer: string;
 
-  @IsNotEmpty()
-  @IsMongoId()
   worker: string;
 
-  @IsNotEmpty()
-  @IsMongoId()
   service: string;
 
   @ApiProperty({
