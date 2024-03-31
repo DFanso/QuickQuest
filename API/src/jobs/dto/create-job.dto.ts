@@ -57,7 +57,7 @@ export class CreateJobDto {
   @ApiProperty({ enum: JobStatus })
   @IsNotEmpty()
   @IsEnum(JobStatus)
-  jobStatus: JobStatus;
+  status: JobStatus;
 
   paymentUrl: string;
 }

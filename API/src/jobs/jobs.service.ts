@@ -32,7 +32,7 @@ export class JobsService {
       price: offer.price,
       orderedDate: new Date(),
       deliveryDate: offer.deliveryDate,
-      jobStatus: JobStatus.Processing,
+      status: JobStatus.Processing,
       paymentUrl: '',
     };
 
@@ -67,7 +67,7 @@ export class JobsService {
         throw new Error(`Job not found with id: ${jobId}`);
       }
 
-      job.jobStatus = JobStatus.Pending;
+      job.status = JobStatus.Pending;
       await job.save();
     } catch (error) {
       throw new Error(`Error updating job status: ${error.message}`);
@@ -110,13 +110,13 @@ export class JobsService {
       );
     }
 
-    if (job.jobStatus !== JobStatus.Pending) {
+    if (job.status !== JobStatus.Pending) {
       throw new BadRequestException(
         'Cannot cancel the order. The job is not in the PENDING status.',
       );
     }
 
-    job.jobStatus = JobStatus.Cancelled;
+    job.status = JobStatus.Cancelled;
 
     const cancelledJob = await this.findOne(id);
     const refundAmount = cancelledJob.price * 0.95;
@@ -178,14 +178,14 @@ export class JobsService {
       throw new HttpException('Job not found', HttpStatus.NOT_FOUND);
     }
 
-    if (job.jobStatus == JobStatus.Processing) {
+    if (job.status == JobStatus.Processing) {
       throw new HttpException(
         'Job is in the PROCESSING state',
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    job.jobStatus = JobStatus.Completed;
+    job.status = JobStatus.Completed;
 
     const completedJob = await this.findOne(jobId);
 
