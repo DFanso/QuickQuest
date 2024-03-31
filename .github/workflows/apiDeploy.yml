@@ -38,6 +38,14 @@ jobs:
           COGNITO_USER_POOL_ID=${{ secrets.COGNITO_USER_POOL_ID }}
           COGNITO_CLIENT_ID=${{ secrets.COGNITO_CLIENT_ID }}
           COGNITO_CLIENT_SECRET=${{ secrets.COGNITO_CLIENT_SECRET }}
+          PAYPAL_CLIENT_ID=${{ secrets.PAYPAL_CLIENT_ID }}
+          PAYPAL_CLIENT_SECRET=${{ secrets.PAYPAL_CLIENT_SECRET }}
+          FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+          BREVO_SMTP=${{ secrets.BREVO_SMTP }}
+          BREVO_SMTP_PORT=${{ secrets.BREVO_SMTP_PORT }}
+          BREVO_USER=${{ secrets.BREVO_USER }}
+          BREVO_PASS=${{ secrets.BREVO_PASS }}
+          EMAIL_FROM_ADDRESS=${{ secrets.EMAIL_FROM_ADDRESS }}
 
     - name: SSH and Deploy
       uses: appleboy/ssh-action@master
