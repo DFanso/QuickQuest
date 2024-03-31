@@ -12,7 +12,7 @@ export class jobsNearingDelivery {
     private readonly emailService: EmailService,
   ) {}
 
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleJobDeliveryReminders() {
     const jobsNearingDelivery = await this.jobsService.getJobsNearingDelivery();
 
