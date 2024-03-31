@@ -73,7 +73,7 @@ export class Job {
   @Prop({ required: true, enum: JobStatus })
   @IsNotEmpty()
   @IsEnum(JobStatus)
-  jobStatus: JobStatus;
+  status: JobStatus;
 
   @Prop({ required: false })
   paymentUrl: string;
