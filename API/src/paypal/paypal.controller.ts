@@ -79,6 +79,7 @@ export class PaypalController {
       } catch (error) {
         console.error('Error updating job status:', error);
       }
+      await this.paypalService.completeOrder(orderId);
       return res.status(HttpStatus.OK).send('Webhook received');
     }
     return res.status(HttpStatus.BAD_REQUEST).send('Invalid event type');
