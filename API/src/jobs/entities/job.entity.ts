@@ -79,7 +79,7 @@ export class Job {
   paymentUrl: string;
 
   @Prop({ required: false })
-  paypalOrderId: string;
+  paypalCaptureId: string;
   _id: unknown;
 }
 
