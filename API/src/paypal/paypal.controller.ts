@@ -22,15 +22,19 @@ export class PaypalController {
   @Post('/webhook')
   async handleWebhook(@Body() body: any, @Res() res: Response) {
     console.log('Received PayPal webhook:', body);
-
-    const jobId = body.resource.purchase_units[0].custom_id;
-    const captureId = body.resource.purchase_units[0].payments.captures[0].id;
+    const jobId = body.resource.purchase_units[0].custom_id; // Fixed the property access
     console.log(jobId);
 
     if (body.event_type === 'CHECKOUT.ORDER.APPROVED') {
       try {
+        let captureId = null;
+        if (
+          body.resource.purchase_units[0].payments && // Added a check for the existence of payments property
+          body.resource.purchase_units[0].payments.captures
+        ) {
+          captureId = body.resource.purchase_units[0].payments.captures[0].id;
+        }
         await this.jobService.updateJobStatus(jobId, captureId);
-
         console.log(`Job status updated for jobId: ${jobId}`);
 
         const job = await this.jobService.findOne(jobId);
@@ -80,10 +84,8 @@ export class PaypalController {
       } catch (error) {
         console.error('Error updating job status:', error);
       }
-
       return res.status(HttpStatus.OK).send('Webhook received');
     }
-
     return res.status(HttpStatus.BAD_REQUEST).send('Invalid event type');
   }
 }
