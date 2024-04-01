@@ -24,11 +24,12 @@ export class PaypalController {
     console.log('Received PayPal webhook:', body);
 
     const jobId = body.resource.purchase_units[0].custom_id;
+    const paypalOrderId = body.resource.id;
     console.log(jobId);
 
     if (body.event_type === 'CHECKOUT.ORDER.APPROVED') {
       try {
-        await this.jobService.updateJobStatus(jobId);
+        await this.jobService.updateJobStatus(jobId, paypalOrderId);
 
         console.log(`Job status updated for jobId: ${jobId}`);
 
@@ -60,7 +61,7 @@ export class PaypalController {
             orderedDate: job.orderedDate.toISOString(),
             customerName: job.customer.firstName + ' ' + job.customer.lastName,
             customerContact: job.customer.email,
-            loginUrl: 'https://quickquest.com/login', // Replace with your actual login URL
+            loginUrl: 'https://quickquest.com/login',
           },
         );
 

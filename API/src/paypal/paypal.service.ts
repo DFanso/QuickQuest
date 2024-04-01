@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Injectable } from '@nestjs/common';
 import * as paypal from '@paypal/checkout-server-sdk';
 import * as payouts from '@paypal/payouts-sdk';
@@ -98,6 +99,23 @@ export class PaypalService {
       console.log('Payout sent successfully:', response.result);
     } catch (err) {
       throw new Error(`Error sending payout: ${err.message}`);
+    }
+  }
+
+  async refundPayment(orderId: string, amount: number): Promise<void> {
+    const request = new paypal.payments.CapturesRefundRequest(orderId);
+    request.requestBody({
+      amount: {
+        currency_code: 'USD',
+        value: amount.toFixed(2),
+      },
+    });
+
+    try {
+      const response = await this.paypalClient.execute(request);
+      console.log('Refund processed successfully:', response.result);
+    } catch (err) {
+      throw new Error(`Error processing refund: ${err.message}`);
     }
   }
 }

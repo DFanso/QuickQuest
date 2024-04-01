@@ -34,6 +34,7 @@ export class JobsService {
       deliveryDate: offer.deliveryDate,
       status: JobStatus.Processing,
       paymentUrl: '',
+      paypalOrderId: '',
     };
 
     const createdJob = new this.jobModel(createJobDto);
@@ -59,7 +60,7 @@ export class JobsService {
     return createdJob;
   }
 
-  async updateJobStatus(jobId: string): Promise<void> {
+  async updateJobStatus(jobId: string, paypalOrderId): Promise<void> {
     try {
       const job = await this.jobModel.findOne({ _id: jobId });
 
@@ -68,6 +69,7 @@ export class JobsService {
       }
 
       job.status = JobStatus.Pending;
+      job.paypalOrderId = paypalOrderId;
       await job.save();
     } catch (error) {
       throw new Error(`Error updating job status: ${error.message}`);
@@ -120,6 +122,11 @@ export class JobsService {
 
     const cancelledJob = await this.findOne(id);
     const refundAmount = cancelledJob.price * 0.95;
+
+    await this.paypalService.refundPayment(
+      cancelledJob.paypalOrderId,
+      refundAmount,
+    );
     // Render cancellation email content
     const emailContent = await this.emailService.renderTemplate(
       'customer-job-cancellation.hbs',
