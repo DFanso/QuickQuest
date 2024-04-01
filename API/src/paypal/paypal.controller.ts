@@ -22,19 +22,15 @@ export class PaypalController {
   @Post('/webhook')
   async handleWebhook(@Body() body: any, @Res() res: Response) {
     console.log('Received PayPal webhook:', body);
-    const jobId = body.resource.purchase_units[0].custom_id; // Fixed the property access
+
+    const jobId = body.resource.purchase_units[0].custom_id;
     console.log(jobId);
+
+    const orderId = body.resource.id;
 
     if (body.event_type === 'CHECKOUT.ORDER.APPROVED') {
       try {
-        let captureId = null;
-        if (
-          body.resource.purchase_units[0].payments && // Added a check for the existence of payments property
-          body.resource.purchase_units[0].payments.captures
-        ) {
-          captureId = body.resource.purchase_units[0].payments.captures[0].id;
-        }
-        await this.jobService.updateJobStatus(jobId, captureId);
+        await this.jobService.updateJobStatus(jobId, orderId);
         console.log(`Job status updated for jobId: ${jobId}`);
 
         const job = await this.jobService.findOne(jobId);
@@ -75,7 +71,6 @@ export class PaypalController {
           'Payment Confirmation',
           emailContent,
         );
-
         await this.emailService.sendEmail(
           [job.worker.email],
           'New Job Assignment',

@@ -60,5 +60,5 @@ export class CreateJobDto {
   status: JobStatus;
 
   paymentUrl: string;
-  paypalCaptureId: string;
+  paypalOrderId: string;
 }
