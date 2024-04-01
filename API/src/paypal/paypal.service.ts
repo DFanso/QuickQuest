@@ -103,17 +103,27 @@ export class PaypalService {
   }
 
   async refundPayment(orderId: string, amount: number): Promise<void> {
-    const request = new paypal.payments.CapturesRefundRequest(orderId);
-    request.requestBody({
-      amount: {
-        currency_code: 'USD',
-        value: amount.toFixed(2),
-      },
-    });
+    const request = new paypal.orders.OrdersGetRequest(orderId);
 
     try {
       const response = await this.paypalClient.execute(request);
-      console.log('Refund processed successfully:', response.result);
+      const order = response.result;
+
+      const captureId = order.purchase_units[0].payments.captures[0].id;
+
+      const refundRequest = new paypal.payments.CapturesRefundRequest(
+        captureId,
+      );
+
+      refundRequest.requestBody({
+        amount: {
+          value: amount.toFixed(2),
+          currency_code: order.purchase_units[0].amount.currency_code,
+        },
+      });
+
+      const refundResponse = await this.paypalClient.execute(refundRequest);
+      console.log('Refund processed successfully:', refundResponse.result);
     } catch (err) {
       throw new Error(`Error processing refund: ${err.message}`);
     }
