@@ -123,10 +123,10 @@ export class JobsService {
     const cancelledJob = await this.findOne(id);
     const refundAmount = cancelledJob.price * 0.95;
 
-    await this.paypalService.refundPayment(
-      cancelledJob.paypalCaptureId,
-      refundAmount,
-    );
+    // await this.paypalService.refundPayment(
+    //   cancelledJob.paypalCaptureId,
+    //   refundAmount,
+    // );
     // Render cancellation email content
     const emailContent = await this.emailService.renderTemplate(
       'customer-job-cancellation.hbs',
