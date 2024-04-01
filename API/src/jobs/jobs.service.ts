@@ -189,6 +189,14 @@ export class JobsService {
 
     const completedJob = await this.findOne(jobId);
 
+    const orderValue = completedJob.price;
+    const workerShare = orderValue * 0.9;
+
+    this.paypalService.sendPayoutToWorker(
+      completedJob.worker.email,
+      workerShare,
+    );
+
     const emailContent = await this.emailService.renderTemplate(
       'customer-order-completion.hbs',
       {
