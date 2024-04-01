@@ -75,6 +75,27 @@ export class PaypalService {
     }
   }
 
+  async completeOrder(orderId: string): Promise<void> {
+    const request = new paypal.orders.OrdersGetRequest(orderId);
+
+    try {
+      const response = await this.paypalClient.execute(request);
+      const order = response.result;
+
+      if (order.status === 'APPROVED') {
+        const captureRequest = new paypal.orders.OrdersCaptureRequest(orderId);
+        captureRequest.requestBody({});
+
+        const captureResponse = await this.paypalClient.execute(captureRequest);
+        console.log('Order captured successfully:', captureResponse.result);
+      } else {
+        throw new Error('Order is not approved and cannot be captured');
+      }
+    } catch (err) {
+      throw new Error(`Error capturing order: ${err.message}`);
+    }
+  }
+
   async sendPayoutToWorker(workerEmail: string, amount: number): Promise<void> {
     const request = new payouts.payouts.PayoutsPostRequest();
     request.requestBody({
@@ -109,21 +130,35 @@ export class PaypalService {
       const response = await this.paypalClient.execute(request);
       const order = response.result;
 
-      const captureId = order.purchase_units[0].payments.captures[0].id;
+      if (order.status === 'COMPLETED') {
+        if (
+          order.purchase_units &&
+          order.purchase_units[0] &&
+          order.purchase_units[0].payments &&
+          order.purchase_units[0].payments.captures &&
+          order.purchase_units[0].payments.captures[0]
+        ) {
+          const captureId = order.purchase_units[0].payments.captures[0].id;
 
-      const refundRequest = new paypal.payments.CapturesRefundRequest(
-        captureId,
-      );
+          const refundRequest = new paypal.payments.CapturesRefundRequest(
+            captureId,
+          );
 
-      refundRequest.requestBody({
-        amount: {
-          value: amount.toFixed(2),
-          currency_code: order.purchase_units[0].amount.currency_code,
-        },
-      });
+          refundRequest.requestBody({
+            amount: {
+              value: amount.toFixed(2),
+              currency_code: order.purchase_units[0].amount.currency_code,
+            },
+          });
 
-      const refundResponse = await this.paypalClient.execute(refundRequest);
-      console.log('Refund processed successfully:', refundResponse.result);
+          const refundResponse = await this.paypalClient.execute(refundRequest);
+          console.log('Refund processed successfully:', refundResponse.result);
+        } else {
+          throw new Error('Capture not found in the order');
+        }
+      } else {
+        throw new Error('Order is not completed and cannot be refunded');
+      }
     } catch (err) {
       throw new Error(`Error processing refund: ${err.message}`);
     }
