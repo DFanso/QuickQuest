@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import * as paypal from '@paypal/checkout-server-sdk';
+import * as payouts from '@paypal/payouts-sdk';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PaypalService {
   private paypalClient: paypal.core.PayPalHttpClient;
+  private payoutsClient: payouts.core.PayPalHttpClient;
 
   constructor(private configService: ConfigService) {
     const environment = new paypal.core.SandboxEnvironment(
@@ -12,6 +14,7 @@ export class PaypalService {
       this.configService.get('PAYPAL_CLIENT_SECRET'),
     );
     this.paypalClient = new paypal.core.PayPalHttpClient(environment);
+    this.payoutsClient = new payouts.core.PayPalHttpClient(environment);
   }
 
   async createJob(details: {
@@ -68,6 +71,33 @@ export class PaypalService {
       return approvalUrl;
     } catch (err) {
       throw new Error(`Error creating PayPal order: ${err.message}`);
+    }
+  }
+
+  async sendPayoutToWorker(workerEmail: string, amount: number): Promise<void> {
+    const request = new payouts.payouts.PayoutsPostRequest();
+    request.requestBody({
+      sender_batch_header: {
+        recipient_type: 'EMAIL',
+        email_message: 'Payment for completed job',
+        note: 'Thank you for your work!',
+      },
+      items: [
+        {
+          amount: {
+            currency: 'USD',
+            value: amount.toFixed(2),
+          },
+          receiver: workerEmail,
+        },
+      ],
+    });
+
+    try {
+      const response = await this.payoutsClient.execute(request);
+      console.log('Payout sent successfully:', response.result);
+    } catch (err) {
+      throw new Error(`Error sending payout: ${err.message}`);
     }
   }
 }
