@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { concat, filter, from, map, Observable, of, Subject } from 'rxjs';
+import { concat, defer, filter, from, map, merge, Observable, of, scan, Subject } from 'rxjs';
 import { ContentType } from 'src/Types/chat.types';
 import { Chat } from './entities/chat.entity';
 import { UserService } from 'src/user/user.service';
@@ -61,15 +61,26 @@ export class ChatsService {
 
   getMessages(chatId: string): Observable<any> {
     // Retrieve old messages from the database
-    const oldMessages$ = from(this.getOldMessages(chatId));
+    const oldMessages$ = defer(() => from(this.getOldMessages(chatId)));
 
     // Combine old messages with new messages from the subject
-    return concat(oldMessages$, this.messagesSubject.asObservable()).pipe(
-      filter((data: any) => data.chatId === chatId),
-      map((data: any) => ({
-        chatId: data.chatId,
-        messages: data.messages || [data.message],
-      })),
+    return merge(
+      oldMessages$,
+      this.messagesSubject.asObservable().pipe(
+        filter((data: any) => data.chatId === chatId),
+        map((data: any) => ({
+          chatId: data.chatId,
+          messages: [data.message],
+        })),
+      ),
+    ).pipe(
+      scan(
+        (acc: any, curr: any) => ({
+          chatId: curr.chatId,
+          messages: [...acc.messages, ...curr.messages],
+        }),
+        { chatId, messages: [] },
+      ),
     );
   }
 
