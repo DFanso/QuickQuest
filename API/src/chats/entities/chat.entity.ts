@@ -25,12 +25,14 @@ export class Chat extends Document {
       },
     ],
     default: [],
+    _id: false,
   })
   messages: {
     sender: User;
     contentType: ContentType;
     content: string | MongooseSchema.Types.ObjectId;
     timestamp: Date;
+    _id: false;
   }[];
 }
 
