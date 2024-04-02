@@ -117,4 +117,19 @@ export class UserService {
     }
     return { deleted: true, id };
   }
+
+  async updateWorkerPaypalEmail(
+    workerId: string,
+    paypalEmail: string,
+  ): Promise<UserDocument> {
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(workerId, { paypalEmail: paypalEmail }, { new: true })
+      .exec();
+
+    if (!updatedUser) {
+      throw new HttpException('Worker not found', HttpStatus.NOT_FOUND);
+    }
+
+    return updatedUser;
+  }
 }

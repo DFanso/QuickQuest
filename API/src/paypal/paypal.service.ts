@@ -3,19 +3,31 @@ import { Injectable } from '@nestjs/common';
 import * as paypal from '@paypal/checkout-server-sdk';
 import * as payouts from '@paypal/payouts-sdk';
 import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class PaypalService {
   private paypalClient: paypal.core.PayPalHttpClient;
   private payoutsClient: payouts.core.PayPalHttpClient;
 
-  constructor(private configService: ConfigService) {
+  private readonly clientId: string;
+  private readonly clientSecret: string;
+  private readonly redirectUri: string;
+
+  constructor(
+    private configService: ConfigService,
+    private readonly userService: UserService,
+  ) {
     const environment = new paypal.core.SandboxEnvironment(
       this.configService.get('PAYPAL_CLIENT_ID'),
       this.configService.get('PAYPAL_CLIENT_SECRET'),
     );
     this.paypalClient = new paypal.core.PayPalHttpClient(environment);
     this.payoutsClient = new payouts.core.PayPalHttpClient(environment);
+    this.clientId = this.configService.get('PAYPAL_CLIENT_ID');
+    this.clientSecret = this.configService.get('PAYPAL_CLIENT_SECRET');
+    this.redirectUri = this.configService.get('PAYPAL_REDIRECT_URI');
   }
 
   async createJob(details: {
@@ -162,5 +174,55 @@ export class PaypalService {
     } catch (err) {
       throw new Error(`Error processing refund: ${err.message}`);
     }
+  }
+
+  async getAuthorizationUrl(workerId: string): Promise<string> {
+    const authorizationUrl = `https://www.sandbox.paypal.com/signin/authorize?client_id=${this.clientId}&response_type=code&scope=email&redirect_uri=${this.redirectUri}&state=${workerId}`;
+    return authorizationUrl;
+  }
+
+  async getAccessToken(authorizationCode: string): Promise<string> {
+    const clientId = this.clientId;
+    const secretKey = this.clientSecret;
+
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: 'https://api.sandbox.paypal.com/v1/oauth2/token',
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${clientId}:${secretKey}`).toString('base64')}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        data: `grant_type=authorization_code&code=${authorizationCode}`,
+      });
+
+      return response.data.access_token;
+    } catch (error) {
+      console.error(
+        'Error exchanging authorization code for access token:',
+        error.response.data,
+      );
+      throw new Error('Failed to obtain access token');
+    }
+  }
+
+  async getPaypalEmail(accessToken: string): Promise<string> {
+    const emailResponse = await axios.get(
+      'https://api.sandbox.paypal.com/v1/identity/oauth2/userinfo?schema=paypalv1.1',
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+
+    return emailResponse.data.emails[0].value;
+  }
+
+  async updateWorkerPaypalEmail(
+    workerId: string,
+    paypalEmail: string,
+  ): Promise<void> {
+    await this.userService.updateWorkerPaypalEmail(workerId, paypalEmail);
   }
 }
