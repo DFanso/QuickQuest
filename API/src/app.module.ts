@@ -50,6 +50,7 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
         BREVO_PASS: Joi.string().required(),
         BREVO_SMTP_PORT: Joi.string().required(),
         EMAIL_FROM_ADDRESS: Joi.string().required(),
+        PAYPAL_REDIRECT_URI: Joi.string().required(),
       }),
     }),
     MongooseModule.forRoot(
