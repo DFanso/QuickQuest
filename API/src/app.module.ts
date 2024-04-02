@@ -20,6 +20,7 @@ import { JobsModule } from './jobs/jobs.module';
 import { PaypalModule } from './paypal/paypal.module';
 import { EmailModule } from './email/email.module';
 import { FeedbacksModule } from './feedbacks/feedbacks.module';
+import { ChatsModule } from './chats/chats.module';
 
 mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
   Logger.verbose(
@@ -87,6 +88,7 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
     PaypalModule,
     EmailModule,
     FeedbacksModule,
+    ChatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
