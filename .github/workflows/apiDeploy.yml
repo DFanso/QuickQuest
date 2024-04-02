@@ -46,6 +46,7 @@ jobs:
           BREVO_USER=${{ secrets.BREVO_USER }}
           BREVO_PASS=${{ secrets.BREVO_PASS }}
           EMAIL_FROM_ADDRESS=${{ secrets.EMAIL_FROM_ADDRESS }}
+          PAYPAL_REDIRECT_URI=${{ secrets.PAYPAL_REDIRECT_URI }}
 
     - name: SSH and Deploy
       uses: appleboy/ssh-action@master
