@@ -35,7 +35,6 @@ export class JobsService {
       status: JobStatus.Processing,
       paymentUrl: '',
       paypalOrderId: '',
-      paypalEmail: '',
     };
 
     const createdJob = new this.jobModel(createJobDto);
