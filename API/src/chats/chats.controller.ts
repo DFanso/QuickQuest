@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
   Param,
   Sse,
@@ -99,6 +100,27 @@ export class ChatsController {
       contentType,
       content,
     );
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Get()
+  @ApiOperation({ summary: 'Get all chats for the authenticated user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved all chats for the user',
+  })
+  async getAllChats(): Promise<any> {
+    const context = this.clsService.get<AppClsStore>();
+    if (!context || !context.user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+    const user = await this.userService.findOne({ _id: context.user.id });
+    if (!user) {
+      throw new HttpException('Unauthorized User', HttpStatus.UNAUTHORIZED);
+    }
+    const chats = await this.chatService.getAllChatsForUser(user._id);
+    return { chats };
   }
 
   @Sse(':chatId/sse')
