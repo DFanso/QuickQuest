@@ -1,12 +1,26 @@
 /* eslint-disable no-console */
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { PaypalService } from './paypal.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { JobsService } from '../jobs/jobs.service';
 import { EmailService } from 'src/email/email.service';
+import { AuthGuard } from '@nestjs/passport';
+import { ClsService } from 'nestjs-cls';
+import { AppClsStore, UserType } from 'src/Types/user.types';
+import { UserService } from 'src/user/user.service';
 
 @ApiTags('paypal')
 @Controller({ path: 'paypal', version: '1' })
@@ -17,6 +31,8 @@ export class PaypalController {
     private readonly configService: ConfigService,
     private readonly jobService: JobsService,
     private readonly emailService: EmailService,
+    private readonly clsService: ClsService,
+    private readonly userService: UserService,
   ) {}
 
   @Post('/webhook')
@@ -83,5 +99,46 @@ export class PaypalController {
       return res.status(HttpStatus.OK).send('Webhook received');
     }
     return res.status(HttpStatus.BAD_REQUEST).send('Invalid event type');
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/auth')
+  async authorize(@Res() res: Response) {
+    const context = this.clsService.get<AppClsStore>();
+    if (!context || !context.user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+    const user = await this.userService.findOne({ _id: context.user.id });
+    if (!user || user.type != UserType.Worker) {
+      throw new HttpException('Unauthorized User', HttpStatus.UNAUTHORIZED);
+    }
+    const authorizationUrl = await this.paypalService.getAuthorizationUrl(
+      context.user.id,
+    );
+    res.send(authorizationUrl);
+  }
+
+  @Get('/callback')
+  async callback(
+    @Query('code') authorizationCode: string,
+    @Query('state') workerId: string,
+  ) {
+    try {
+      const accessToken =
+        await this.paypalService.getAccessToken(authorizationCode);
+      const paypalEmail = await this.paypalService.getPaypalEmail(accessToken);
+      console.log(paypalEmail, ' ', workerId);
+      await this.paypalService.updateWorkerPaypalEmail(workerId, paypalEmail);
+      return { success: true, message: 'PayPal email updated successfully' };
+    } catch (error) {
+      console.error('Error updating PayPal email:', error);
+      console.error('Authorization Code:', authorizationCode);
+      return {
+        success: false,
+        message: 'Error updating PayPal email',
+        error: error.message,
+      };
+    }
   }
 }
