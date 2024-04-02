@@ -201,7 +201,7 @@ export class JobsService {
     const workerShare = orderValue * 0.9;
 
     this.paypalService.sendPayoutToWorker(
-      completedJob.worker.email,
+      completedJob.worker.paypalEmail,
       workerShare,
     );
 
