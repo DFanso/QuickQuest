@@ -1,7 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { concat, defer, filter, from, map, merge, Observable, of, scan, Subject } from 'rxjs';
+import {
+  defer,
+  filter,
+  from,
+  map,
+  merge,
+  Observable,
+  scan,
+  Subject,
+} from 'rxjs';
 import { ContentType } from 'src/Types/chat.types';
 import { Chat } from './entities/chat.entity';
 import { UserService } from 'src/user/user.service';
@@ -31,6 +40,17 @@ export class ChatsService {
       worker: workerId,
     });
     return newChat.save();
+  }
+
+  async getAllChatsForUser(userId: string): Promise<Chat[]> {
+    const chats = await this.chatModel
+      .find({
+        $or: [{ customer: userId }, { worker: userId }],
+      })
+      .populate('customer', 'firstName lastName email profileImage')
+      .populate('worker', 'firstName lastName email profileImage')
+      .exec();
+    return chats;
   }
 
   async addMessage(
