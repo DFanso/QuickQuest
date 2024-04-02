@@ -33,4 +33,5 @@ export enum UserType {
 export enum UserStatus {
   Verified = 'VERIFIED',
   Unverified = 'UNVERIFIED',
+  PaypalAuth = 'PAYPALAUTH',
 }
