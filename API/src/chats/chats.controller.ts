@@ -17,7 +17,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { Observable, merge, mapTo, interval, map, switchMap } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { ContentType } from 'src/Types/chat.types';
 import { AuthGuard } from '@nestjs/passport';
 import { ClsService } from 'nestjs-cls';
@@ -110,18 +110,23 @@ export class ChatsController {
     status: 200,
     description: 'Successfully subscribed to chat messages',
   })
-  async sse(
-    @Param('chatId') chatId: string,
-  ): Promise<Observable<MessageEvent>> {
-    const messages$ = await this.chatService.getMessages(chatId);
-    return messages$.pipe(
-      switchMap((data) => {
-        return new Observable<MessageEvent>((observer) => {
-          observer.next(
-            new MessageEvent('message', { data: JSON.stringify(data) }),
-          );
-        });
+  sse(@Param('chatId') chatId: string): Observable<MessageEvent> {
+    return this.chatService.getMessages(chatId).pipe(
+      map((data: any) => {
+        const formattedData = {
+          chatId: data.chatId,
+          messages: data.messages
+            ? data.messages.map((message: any) => ({
+                sender: message.sender,
+                contentType: message.contentType,
+                content: message.content,
+                timestamp: message.timestamp,
+              }))
+            : [],
+        };
+        return { type: 'message', data: JSON.stringify(formattedData) };
       }),
+      map((data: any) => new MessageEvent('message', { data: data.data })),
     );
   }
 }
