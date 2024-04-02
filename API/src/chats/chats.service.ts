@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Observable, from } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
 import { ContentType } from 'src/Types/chat.types';
 import { Chat } from './entities/chat.entity';
 import { UserService } from 'src/user/user.service';
@@ -54,30 +53,26 @@ export class ChatsService {
     );
   }
 
-  getMessages(chatId: string): Observable<any> {
-    return from(
-      this.chatModel
-        .findById(chatId)
-        .populate('customer worker messages.sender'),
-    ).pipe(
-      mergeMap((chat) => {
-        const populateOffers = chat.messages.map((message) => {
-          if (message.contentType === ContentType.Offer) {
-            return this.offersService
-              .findOne(message.content)
-              .then((offer) => ({
-                ...message,
-                content: offer,
-              }));
-          }
-          return Promise.resolve(message);
-        });
+  async getMessages(chatId: string): Promise<Observable<any>> {
+    const chat = await this.chatModel.findById(chatId).lean().exec();
+    if (!chat) {
+      throw new NotFoundException('Chat not found');
+    }
 
-        return Promise.all(populateOffers);
-      }),
-      map((messages) => {
-        return { type: 'message', data: messages };
-      }),
-    );
+    const populateOffers = chat.messages.map(async (message) => {
+      if (message.contentType === ContentType.Offer) {
+        const offer = await this.offersService.findOne({
+          _id: message.content,
+        });
+        return {
+          ...message,
+          content: offer,
+        };
+      }
+      return message;
+    });
+
+    const messages = await Promise.all(populateOffers);
+    return of({ type: 'message', data: messages });
   }
 }

@@ -17,7 +17,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { Observable, merge, mapTo, interval, map } from 'rxjs';
+import { Observable, merge, mapTo, interval, map, switchMap } from 'rxjs';
 import { ContentType } from 'src/Types/chat.types';
 import { AuthGuard } from '@nestjs/passport';
 import { ClsService } from 'nestjs-cls';
@@ -55,14 +55,15 @@ export class ChatsController {
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }
     const user = await this.userService.findOne({ _id: context.user.id });
-    if (!user || user.type != UserType.Customer) {
+    if (!user || user.type !== UserType.Customer) {
       throw new HttpException('Unauthorized User', HttpStatus.UNAUTHORIZED);
     }
-
     const chat = await this.chatService.createChat(context.user.id, workerId);
     return { chatId: chat._id };
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @Post(':chatId/messages')
   @ApiOperation({ summary: 'Add a new message to a chat' })
   @ApiParam({ name: 'chatId', type: 'string' })
@@ -70,7 +71,6 @@ export class ChatsController {
     schema: {
       type: 'object',
       properties: {
-        senderId: { type: 'string' },
         contentType: { type: 'string', enum: Object.values(ContentType) },
         content: { type: 'string' },
       },
@@ -82,11 +82,23 @@ export class ChatsController {
   })
   async addMessage(
     @Param('chatId') chatId: string,
-    @Body('senderId') senderId: string,
     @Body('contentType') contentType: ContentType,
     @Body('content') content: string | any,
   ): Promise<void> {
-    await this.chatService.addMessage(chatId, senderId, contentType, content);
+    const context = this.clsService.get<AppClsStore>();
+    if (!context || !context.user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+    const user = await this.userService.findOne({ _id: context.user.id });
+    if (!user) {
+      throw new HttpException('Unauthorized User', HttpStatus.UNAUTHORIZED);
+    }
+    await this.chatService.addMessage(
+      chatId,
+      context.user.id,
+      contentType,
+      content,
+    );
   }
 
   @Sse(':chatId/sse')
@@ -98,12 +110,18 @@ export class ChatsController {
     status: 200,
     description: 'Successfully subscribed to chat messages',
   })
-  sse(@Param('chatId') chatId: string): Observable<MessageEvent> {
-    const messages$ = this.chatService.getMessages(chatId);
-    const keepAlive$ = merge(
-      messages$.pipe(mapTo(true)),
-      interval(30000).pipe(map(() => true)),
-    ).pipe(mapTo({ type: 'ping', data: { chatId } }));
-    return merge(messages$, keepAlive$);
+  async sse(
+    @Param('chatId') chatId: string,
+  ): Promise<Observable<MessageEvent>> {
+    const messages$ = await this.chatService.getMessages(chatId);
+    return messages$.pipe(
+      switchMap((data) => {
+        return new Observable<MessageEvent>((observer) => {
+          observer.next(
+            new MessageEvent('message', { data: JSON.stringify(data) }),
+          );
+        });
+      }),
+    );
   }
 }
