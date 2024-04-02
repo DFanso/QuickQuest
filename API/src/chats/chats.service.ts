@@ -59,12 +59,19 @@ export class ChatsService {
     contentType: ContentType,
     content: string | any,
   ): Promise<void> {
-    const newMessage = {
+    const newMessage: any = {
       sender: senderId,
       contentType,
       content,
       timestamp: new Date(),
     };
+
+    if (contentType === ContentType.Offer) {
+      const offer = await this.offersService.findOne({
+        _id: content,
+      });
+      newMessage.content = offer;
+    }
 
     await this.chatModel.updateOne(
       { _id: chatId },
