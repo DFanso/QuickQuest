@@ -61,4 +61,5 @@ export class CreateJobDto {
 
   paymentUrl: string;
   paypalOrderId: string;
+  paypalEmail: string;
 }
