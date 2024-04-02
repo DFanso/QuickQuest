@@ -28,7 +28,11 @@ export class AuthService {
     if (!user) {
       throw new HttpException('Email is not registered', HttpStatus.NOT_FOUND);
     }
-    user.status = UserStatus.Verified;
+    if (user.type == UserType.Worker) {
+      user.status = UserStatus.PaypalAuth;
+    } else {
+      user.status = UserStatus.Verified;
+    }
     user.save();
   }
 }
