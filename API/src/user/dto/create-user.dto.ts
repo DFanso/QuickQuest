@@ -106,4 +106,7 @@ export class CreateUserDto {
   @IsUrl()
   @IsOptional()
   profileImage?: string;
+
+  @IsOptional()
+  paypalEmail?: string;
 }

@@ -95,6 +95,9 @@ export class User {
   @IsUrl()
   @Prop()
   profileImage: string;
+
+  @Prop({ required: false })
+  paypalEmail: string;
   _id: unknown;
 }
 
