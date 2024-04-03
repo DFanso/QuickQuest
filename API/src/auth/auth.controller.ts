@@ -27,6 +27,7 @@ import { VerifyEmailDto } from './dto/verfiy-email.dto';
 import { ConfirmForgotPasswordDto } from './dto/confirm-forgot-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { Response } from 'express';
+import { UserStatus, UserType } from 'src/Types/user.types';
 
 @ApiTags('auth')
 @Controller({ path: 'auth', version: '1' })
@@ -148,11 +149,42 @@ export class AuthController {
   async handleCallback(@Query('code') code: string, @Res() res: Response) {
     try {
       const tokens = await this.cognitoService.exchangeCodeForToken(code);
-      // Here you can handle the tokens, e.g., save them, return them to the client, etc.
-      // For demonstration, let's just return the tokens to the client
-      res.json(tokens);
+      const idToken = tokens.id_token;
+
+      // Decode the ID token
+      const decodedToken = this.authService.decodeJwtToken(idToken);
+
+      // Extract user information from the decoded token
+      const email = decodedToken.email;
+      const firstName = decodedToken.given_name;
+      const lastName = decodedToken.family_name;
+      const picture = decodedToken.picture;
+
+      console.log(email, firstName, lastName, picture);
+
+      // Check if the user already exists in your database
+      let user = await this.userService.findOne({ email });
+
+      if (!user) {
+        // If the user doesn't exist, create a new user record
+        const createUserDto: CreateUserDto = {
+          email,
+          firstName,
+          lastName,
+          profileImage: picture,
+          type: UserType.Customer,
+          status: UserStatus.googleAuth,
+        };
+
+        user = await this.userService.createSSo(createUserDto);
+      }
+
+      // // Generate a JWT token for the user
+      // const jwtToken = this.authService.generateJwtToken(user);
+
+      // // Return the JWT token to the client
+      res.json({ user: user });
     } catch (error) {
-      console.error('Error exchanging code for tokens:', error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('An error occurred');
     }
   }
