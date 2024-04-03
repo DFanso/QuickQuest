@@ -178,12 +178,7 @@ export class AuthController {
 
         user = await this.userService.createSSo(createUserDto);
       }
-
-      // // Generate a JWT token for the user
-      // const jwtToken = this.authService.generateJwtToken(user);
-
-      // // Return the JWT token to the client
-      res.json({ user: user, token: idToken });
+      res.json({ token: idToken });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('An error occurred');
     }

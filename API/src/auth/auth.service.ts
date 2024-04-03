@@ -4,8 +4,6 @@ import { AppClsStore, UserStatus, UserType } from 'src/Types/user.types';
 import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { ConfigService } from '@nestjs/config';
-import { User } from 'src/user/entities/user.entity';
-import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
@@ -53,25 +51,5 @@ export class AuthService {
     );
 
     return JSON.parse(jsonPayload);
-  }
-
-  generateJwtToken(user: User): string {
-    const payload = {
-      sub: user.userId,
-      email: user.email,
-      // Add any other relevant claims
-    };
-
-    const options = {
-      expiresIn: '24h', // Set the token expiration time
-      issuer: `https://cognito-idp.${this.configService.get<string>('AWS_REGION')}.amazonaws.com/${this.configService.get<string>('COGNITO_USER_POOL_ID')}`,
-      audience: this.configService.get<string>('COGNITO_CLIENT_ID'),
-    };
-
-    return jwt.sign(
-      payload,
-      this.configService.get<string>('JWT_SECRET'),
-      options,
-    );
   }
 }
