@@ -258,6 +258,7 @@ export class CognitoService {
     params.append('client_id', clientId);
     params.append('code', code);
     params.append('redirect_uri', callbackUrl);
+    params.append('scope', 'openid email profile');
 
     // Cognito requires client credentials to be passed in the Authorization header as a base64-encoded string
     const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString(

@@ -32,7 +32,8 @@ class LocationDto {
 }
 
 export class CreateUserDto {
-  userId: string;
+  @IsOptional()
+  userId?: string;
 
   @ApiProperty({ example: 'John', description: 'First Name' })
   @IsNotEmpty()
@@ -54,8 +55,8 @@ export class CreateUserDto {
     writeOnly: true,
   })
   @IsString()
-  @IsNotEmpty()
-  password: string;
+  @IsOptional()
+  password?: string;
 
   @ApiProperty({
     example: 'A detailed about me section.',

@@ -25,6 +25,11 @@ export class UserService {
     return createdUser.save();
   }
 
+  createSSo(createUserDto: CreateUserDto) {
+    const createdUser = new this.userModel(createUserDto);
+    return createdUser.save();
+  }
+
   findAll() {
     const context = this.clsService.get<AppClsStore>();
     if (!context || !context.user) {
