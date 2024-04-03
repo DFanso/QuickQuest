@@ -159,8 +159,7 @@ export class AuthController {
       const firstName = decodedToken.given_name;
       const lastName = decodedToken.family_name;
       const picture = decodedToken.picture;
-
-      console.log(email, firstName, lastName, picture);
+      const userId = decodedToken.sub;
 
       // Check if the user already exists in your database
       let user = await this.userService.findOne({ email });
@@ -174,6 +173,7 @@ export class AuthController {
           profileImage: picture,
           type: UserType.Customer,
           status: UserStatus.googleAuth,
+          userId,
         };
 
         user = await this.userService.createSSo(createUserDto);
@@ -183,7 +183,7 @@ export class AuthController {
       // const jwtToken = this.authService.generateJwtToken(user);
 
       // // Return the JWT token to the client
-      res.json({ user: user });
+      res.json({ user: user, token: idToken });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('An error occurred');
     }
