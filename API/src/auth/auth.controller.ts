@@ -6,6 +6,8 @@ import {
   UseGuards,
   HttpException,
   HttpStatus,
+  Res,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CognitoService } from './CognitoService';
@@ -24,6 +26,7 @@ import { UserLoginDto } from './dto/user-login.dto';
 import { VerifyEmailDto } from './dto/verfiy-email.dto';
 import { ConfirmForgotPasswordDto } from './dto/confirm-forgot-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { Response } from 'express';
 
 @ApiTags('auth')
 @Controller({ path: 'auth', version: '1' })
@@ -133,5 +136,24 @@ export class AuthController {
   @Get('profile')
   testJwt() {
     return this.authService.profile();
+  }
+
+  @Get('google-signin')
+  googleSignIn(@Res() res: Response) {
+    const url = this.cognitoService.getGoogleSignInUrl();
+    res.redirect(url);
+  }
+
+  @Get('google-sso/callback')
+  async handleCallback(@Query('code') code: string, @Res() res: Response) {
+    try {
+      const tokens = await this.cognitoService.exchangeCodeForToken(code);
+      // Here you can handle the tokens, e.g., save them, return them to the client, etc.
+      // For demonstration, let's just return the tokens to the client
+      res.json(tokens);
+    } catch (error) {
+      console.error('Error exchanging code for tokens:', error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('An error occurred');
+    }
   }
 }
