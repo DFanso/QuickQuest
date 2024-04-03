@@ -47,6 +47,8 @@ jobs:
           BREVO_PASS=${{ secrets.BREVO_PASS }}
           EMAIL_FROM_ADDRESS=${{ secrets.EMAIL_FROM_ADDRESS }}
           PAYPAL_REDIRECT_URI=${{ secrets.PAYPAL_REDIRECT_URI }}
+          COGNITO_CALLBACK_URL=${{ secrets.COGNITO_CALLBACK_URL }}
+          COGNITO_DOMAIN=${{ secrets.COGNITO_DOMAIN }}
 
     - name: SSH and Deploy
       uses: appleboy/ssh-action@master
