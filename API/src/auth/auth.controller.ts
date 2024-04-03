@@ -176,7 +176,7 @@ export class AuthController {
           userId,
         };
 
-        user = await this.userService.createSSo(createUserDto);
+        user = await this.userService.create(createUserDto);
       }
       res.json({ token: idToken });
     } catch (error) {
