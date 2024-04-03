@@ -6,6 +6,8 @@ import {
   UseGuards,
   HttpException,
   HttpStatus,
+  Res,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CognitoService } from './CognitoService';
@@ -24,6 +26,8 @@ import { UserLoginDto } from './dto/user-login.dto';
 import { VerifyEmailDto } from './dto/verfiy-email.dto';
 import { ConfirmForgotPasswordDto } from './dto/confirm-forgot-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { Response } from 'express';
+import { UserStatus, UserType } from 'src/Types/user.types';
 
 @ApiTags('auth')
 @Controller({ path: 'auth', version: '1' })
@@ -133,5 +137,50 @@ export class AuthController {
   @Get('profile')
   testJwt() {
     return this.authService.profile();
+  }
+
+  @Get('google-signin')
+  googleSignIn(@Res() res: Response) {
+    const url = this.cognitoService.getGoogleSignInUrl();
+    res.redirect(url);
+  }
+
+  @Get('google-sso/callback')
+  async handleCallback(@Query('code') code: string, @Res() res: Response) {
+    try {
+      const tokens = await this.cognitoService.exchangeCodeForToken(code);
+      const idToken = tokens.id_token;
+
+      // Decode the ID token
+      const decodedToken = this.authService.decodeJwtToken(idToken);
+
+      // Extract user information from the decoded token
+      const email = decodedToken.email;
+      const firstName = decodedToken.given_name;
+      const lastName = decodedToken.family_name;
+      const picture = decodedToken.picture;
+      const userId = decodedToken.sub;
+
+      // Check if the user already exists in your database
+      let user = await this.userService.findOne({ email });
+
+      if (!user) {
+        // If the user doesn't exist, create a new user record
+        const createUserDto: CreateUserDto = {
+          email,
+          firstName,
+          lastName,
+          profileImage: picture,
+          type: UserType.Customer,
+          status: UserStatus.googleAuth,
+          userId,
+        };
+
+        user = await this.userService.createSSo(createUserDto);
+      }
+      res.json({ token: idToken });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('An error occurred');
+    }
   }
 }

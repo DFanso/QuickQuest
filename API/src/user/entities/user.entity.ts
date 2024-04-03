@@ -18,7 +18,8 @@ export type UserDocument = User & Document;
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: false, unique: true })
+  @IsOptional()
   userId: string;
 
   @ApiProperty({ example: 'John', description: 'First Name' })
@@ -76,13 +77,14 @@ export class User {
     type: {
       type: String,
       enum: ['Point'],
-      required: true,
+      required: false,
     },
     coordinates: {
       type: [Number],
-      required: true,
+      required: false,
     },
   })
+  @IsOptional()
   location: {
     type: string;
     coordinates: number[];
@@ -97,6 +99,7 @@ export class User {
   profileImage: string;
 
   @Prop({ required: false })
+  @IsOptional()
   paypalEmail: string;
   _id: unknown;
 }
