@@ -20,12 +20,6 @@ export class UserService {
   ) {}
 
   create(createUserDto: CreateUserDto) {
-    createUserDto.status = UserStatus.Unverified;
-    const createdUser = new this.userModel(createUserDto);
-    return createdUser.save();
-  }
-
-  createSSo(createUserDto: CreateUserDto) {
     const createdUser = new this.userModel(createUserDto);
     return createdUser.save();
   }

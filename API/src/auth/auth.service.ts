@@ -22,6 +22,7 @@ export class AuthService {
   }
 
   create(createUserDto: CreateUserDto) {
+    createUserDto.status = UserStatus.Unverified;
     return this.userService.create(createUserDto);
   }
 
