@@ -62,6 +62,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     const user = await this.userService.findOne({ userId: payload.sub });
 
+    console.log(user);
     this.cls.set<AppClsStore>('user', {
       id: user._id,
       email: payload.email,

@@ -20,7 +20,7 @@ export class AuthService {
     if (!context || !context.user) {
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }
-    return this.userService.findOne({ userId: context.user.id });
+    return this.userService.findOne({ _id: context.user.id });
   }
 
   create(createUserDto: CreateUserDto) {
