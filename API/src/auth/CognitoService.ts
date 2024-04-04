@@ -7,6 +7,7 @@ import {
   InitiateAuthCommand,
   ForgotPasswordCommand,
   ConfirmForgotPasswordCommand,
+  ResendConfirmationCodeCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { fromEnv } from '@aws-sdk/credential-provider-env';
 import * as crypto from 'crypto';
@@ -15,6 +16,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { UserType } from 'src/Types/user.types';
+import { ReRequestCodeDto } from './dto/re-request-code.dto';
 
 @Injectable()
 export class CognitoService {
@@ -285,6 +287,39 @@ export class CognitoService {
     } catch (error) {
       console.error('Error exchanging code for tokens:', error);
       throw error;
+    }
+  }
+
+  async resendConfirmationCode(
+    reRequestCodeDto: ReRequestCodeDto,
+  ): Promise<any> {
+    const secretHash = this.generateSecretHash(reRequestCodeDto.email);
+    const params = {
+      ClientId: this.clientId,
+      Username: reRequestCodeDto.email,
+      SecretHash: secretHash,
+    };
+
+    try {
+      const data = await this.client.send(
+        new ResendConfirmationCodeCommand(params),
+      );
+      console.log('Confirmation code resent:', data);
+      return {
+        message: 'Confirmation code has been resent to your email.',
+      };
+    } catch (err) {
+      console.error('Error resending confirmation code:', err);
+      if (err.name === 'UserNotFoundException') {
+        throw new HttpException(
+          'User not found. Please check the provided email.',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      throw new HttpException(
+        'Failed to resend confirmation code. Please try again later.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }
