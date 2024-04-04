@@ -28,6 +28,7 @@ import { ConfirmForgotPasswordDto } from './dto/confirm-forgot-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { Response } from 'express';
 import { UserStatus, UserType } from 'src/Types/user.types';
+import { ReRequestCodeDto } from './dto/re-request-code.dto';
 
 @ApiTags('auth')
 @Controller({ path: 'auth', version: '1' })
@@ -175,12 +176,29 @@ export class AuthController {
           status: UserStatus.googleAuth,
           userId,
         };
-
         user = await this.userService.create(createUserDto);
       }
       res.json({ token: idToken });
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('An error occurred');
+    }
+  }
+
+  @ApiOperation({ summary: 'Request a new verification code' })
+  @ApiBody({ type: ReRequestCodeDto })
+  @ApiResponse({ status: 200, description: 'Verification code sent' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @Post('request-verification-code')
+  async requestVerificationCode(@Body() reRequestCodeDto: ReRequestCodeDto) {
+    try {
+      await this.cognitoService.resendConfirmationCode(reRequestCodeDto);
+      return {
+        statusCode: 200,
+        message:
+          'Verification code has been sent to your email. Please check your inbox.',
+      };
+    } catch (error) {
+      throw new HttpException(`${error.message}`, HttpStatus.BAD_REQUEST);
     }
   }
 }
