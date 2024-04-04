@@ -23,7 +23,7 @@ import {
 } from '@nestjs/swagger';
 import { UserService } from 'src/user/user.service';
 import { UserLoginDto } from './dto/user-login.dto';
-import { VerifyEmailDto } from './dto/verfiy-email.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ConfirmForgotPasswordDto } from './dto/confirm-forgot-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { Response } from 'express';
