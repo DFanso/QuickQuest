@@ -188,8 +188,19 @@ export class AuthController {
   @ApiBody({ type: ReRequestCodeDto })
   @ApiResponse({ status: 200, description: 'Verification code sent' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 405, description: 'Not Allowed' })
   @Post('request-verification-code')
   async requestVerificationCode(@Body() reRequestCodeDto: ReRequestCodeDto) {
+    const user = await this.userService.findOne({
+      email: reRequestCodeDto.email,
+    });
+    if (user) {
+      user.status === UserStatus.Verified;
+      throw new HttpException(
+        'User already verified',
+        HttpStatus.METHOD_NOT_ALLOWED,
+      );
+    }
     try {
       await this.cognitoService.resendConfirmationCode(reRequestCodeDto);
       return {
