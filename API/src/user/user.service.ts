@@ -11,12 +11,14 @@ import { PaginateModel } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClsService } from 'nestjs-cls';
 import { AppClsStore, UserStatus, UserType } from '../Types/user.types';
+import { FeedbacksService } from 'src/feedbacks/feedbacks.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: PaginateModel<User>,
     private readonly clsService: ClsService,
+    private readonly feedBacksService: FeedbacksService,
   ) {}
 
   create(createUserDto: CreateUserDto) {
@@ -45,16 +47,16 @@ export class UserService {
       .exec();
   }
 
-  async findNearByWorkers(userId: string, serviceId?: string): Promise<User[]> {
-    const customer = await this.userModel.findOne({ userId }).exec();
+  // In user.service.ts
+  async findNearByWorkers(userId: string, serviceId?: string): Promise<any[]> {
+    // Change return type to any[] to include feedbackSummary
+    const customer = await this.userModel.findOne({ _id: userId }).exec();
     if (!customer) {
       throw new NotFoundException('Customer not found');
     }
 
     const radius = 10 / 6378.1;
-
-    // eslint-disable-next-line prefer-const
-    let query: any = {
+    const query: any = {
       type: UserType.Worker,
       status: UserStatus.Verified,
       location: {
@@ -93,7 +95,21 @@ export class UserService {
       );
     }
 
-    return workers;
+    // Fetch feedback summary for each worker and add it to their data
+    const workersWithFeedbackSummary = await Promise.all(
+      workers.map(async (worker) => {
+        const feedbackSummary =
+          await this.feedBacksService.findAvgRatingByWorker(
+            worker._id.toString(),
+          );
+        return {
+          ...worker.toObject(),
+          feedbackSummary,
+        };
+      }),
+    );
+
+    return workersWithFeedbackSummary;
   }
 
   async update(

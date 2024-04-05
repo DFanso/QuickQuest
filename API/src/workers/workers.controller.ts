@@ -47,7 +47,7 @@ export class WorkersController {
   @Get(':workerId/profile')
   @ApiOperation({ summary: 'Get worker profile with average rating' })
   async findWorkerProfileWithRating(@Param('workerId') workerId: string) {
-    return this.workersService.findWorkerProfileWithRating(workerId);
+    return this.workersService.workerProfile(workerId);
   }
 
   @Get()
