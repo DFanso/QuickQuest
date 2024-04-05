@@ -42,4 +42,39 @@ export class FeedbacksService {
 
     return feedback;
   }
+
+  async findAvgRatingByWorker(workerId: string): Promise<number> {
+    const result = await this.feedbackModel.aggregate([
+      { $match: { worker: new Types.ObjectId(workerId) } },
+      {
+        $group: {
+          _id: '$worker',
+          avgRating: { $avg: '$stars' },
+        },
+      },
+      {
+        $project: {
+          avgRating: {
+            $switch: {
+              branches: [
+                { case: { $lt: ['$avgRating', 0.5] }, then: 0 },
+                { case: { $lt: ['$avgRating', 1.5] }, then: 1 },
+                { case: { $lt: ['$avgRating', 2.5] }, then: 2 },
+                { case: { $lt: ['$avgRating', 3.5] }, then: 3 },
+                { case: { $lt: ['$avgRating', 4.5] }, then: 4 },
+                { case: { $gte: ['$avgRating', 4.5] }, then: 5 },
+              ],
+              default: 0,
+            },
+          },
+        },
+      },
+    ]);
+
+    if (result.length > 0 && result[0].avgRating !== null) {
+      return result[0].avgRating;
+    } else {
+      return 0;
+    }
+  }
 }
