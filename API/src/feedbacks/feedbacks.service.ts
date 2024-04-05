@@ -43,13 +43,14 @@ export class FeedbacksService {
     return feedback;
   }
 
-  async findAvgRatingByWorker(workerId: string): Promise<number> {
+  async findAvgRatingByWorker(workerId: string): Promise<any> {
     const result = await this.feedbackModel.aggregate([
       { $match: { worker: new Types.ObjectId(workerId) } },
       {
         $group: {
           _id: '$worker',
           avgRating: { $avg: '$stars' },
+          feedbackCount: { $sum: 1 },
         },
       },
       {
@@ -67,14 +68,21 @@ export class FeedbacksService {
               default: 0,
             },
           },
+          feedbackCount: 1,
         },
       },
     ]);
 
-    if (result.length > 0 && result[0].avgRating !== null) {
-      return result[0].avgRating;
+    if (result.length > 0) {
+      return {
+        avgRating: result[0].avgRating !== null ? result[0].avgRating : 0,
+        feedbackCount: result[0].feedbackCount,
+      };
     } else {
-      return 0;
+      return {
+        avgRating: 0,
+        feedbackCount: 0,
+      };
     }
   }
 }
