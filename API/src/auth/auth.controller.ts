@@ -148,6 +148,7 @@ export class AuthController {
 
   @Get('google-sso/callback')
   async handleCallback(@Query('code') code: string, @Res() res: Response) {
+    console.log(code)
     try {
       const tokens = await this.cognitoService.exchangeCodeForToken(code);
       const idToken = tokens.id_token;
