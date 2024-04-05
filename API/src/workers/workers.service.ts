@@ -15,7 +15,7 @@ export class WorkersService {
     return workers;
   }
 
-  async findWorkerProfileWithRating(workerId: string) {
+  async workerProfile(workerId: string) {
     const workerProfileDoc = await this.userService.findOne({ _id: workerId });
 
     if (!workerProfileDoc) {

@@ -15,7 +15,7 @@ import { jobsNearingDelivery } from './job-delivery.task';
     MongooseModule.forFeature([{ name: Job.name, schema: JobSchema }]),
     forwardRef(() => PaypalModule),
     ClsModule,
-    UserModule,
+    forwardRef(() => UserModule),
     EmailModule,
     ScheduleModule.forRoot(),
   ],

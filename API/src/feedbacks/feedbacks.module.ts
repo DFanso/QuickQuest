@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { FeedbacksService } from './feedbacks.service';
 import { FeedbacksController } from './feedbacks.controller';
 import { FeedbackSchema, Feedback } from './entities/feedback.entity';
@@ -12,7 +12,7 @@ import { JobsModule } from 'src/jobs/jobs.module';
     MongooseModule.forFeature([
       { name: Feedback.name, schema: FeedbackSchema },
     ]),
-    UserModule,
+    forwardRef(() => UserModule),
     ClsModule,
     JobsModule,
   ],
