@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Types } from 'mongoose';
 import { FeedbacksService } from 'src/feedbacks/feedbacks.service';
 import { UserService } from 'src/user/user.service';
 
@@ -22,12 +23,17 @@ export class WorkersService {
     }
     const workerProfile = workerProfileDoc.toObject();
 
-    const avgRating =
+    const feedbackSummary =
       await this.feedbacksService.findAvgRatingByWorker(workerId);
+
+    const feedbacks = await this.feedbacksService.findAll({
+      worker: new Types.ObjectId(workerId),
+    });
 
     return {
       ...workerProfile,
-      avgRating,
+      feedbacks,
+      feedbackSummary,
     };
   }
 
