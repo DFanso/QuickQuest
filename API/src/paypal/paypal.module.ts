@@ -13,7 +13,7 @@ import { UserModule } from 'src/user/user.module';
     forwardRef(() => JobsModule),
     EmailModule,
     ClsModule,
-    UserModule,
+    forwardRef(() => UserModule),
   ],
   controllers: [PaypalController],
   providers: [PaypalService],
