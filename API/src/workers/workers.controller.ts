@@ -44,6 +44,11 @@ export class WorkersController {
     }
     return this.workersService.findNearBy(context.user.id, serviceId);
   }
+  @Get(':workerId/profile')
+  @ApiOperation({ summary: 'Get worker profile with average rating' })
+  async findWorkerProfileWithRating(@Param('workerId') workerId: string) {
+    return this.workersService.findWorkerProfileWithRating(workerId);
+  }
 
   @Get()
   findAll() {
