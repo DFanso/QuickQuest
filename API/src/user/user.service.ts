@@ -47,9 +47,7 @@ export class UserService {
       .exec();
   }
 
-  // In user.service.ts
   async findNearByWorkers(userId: string, serviceId?: string): Promise<any[]> {
-    // Change return type to any[] to include feedbackSummary
     const customer = await this.userModel.findOne({ _id: userId }).exec();
     if (!customer) {
       throw new NotFoundException('Customer not found');
@@ -92,6 +90,47 @@ export class UserService {
           worker.services.some(
             (service) => service._id.toString() === serviceId,
           ),
+      );
+    }
+
+    // Fetch feedback summary for each worker and add it to their data
+    const workersWithFeedbackSummary = await Promise.all(
+      workers.map(async (worker) => {
+        const feedbackSummary =
+          await this.feedBacksService.findAvgRatingByWorker(
+            worker._id.toString(),
+          );
+        return {
+          ...worker.toObject(),
+          feedbackSummary,
+        };
+      }),
+    );
+
+    return workersWithFeedbackSummary;
+  }
+
+  async findAllWorkersForService(serviceId: string): Promise<any[]> {
+    const workers = await this.userModel
+      .find({
+        services: serviceId,
+        type: UserType.Worker,
+        status: UserStatus.Verified,
+      })
+      .populate({
+        path: 'services',
+        match: { _id: serviceId },
+        populate: {
+          path: 'category',
+          model: 'Category',
+        },
+      })
+      .exec();
+
+    if (workers.length === 0) {
+      throw new HttpException(
+        'No Workers Found for the Specified Service',
+        HttpStatus.NOT_FOUND,
       );
     }
 
