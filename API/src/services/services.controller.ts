@@ -61,6 +61,14 @@ export class ServicesController {
     return this.servicesService.create(createServiceDto);
   }
 
+  @Get(':serviceId/workers')
+  @ApiOperation({
+    summary: 'Get all workers for a specific service',
+  })
+  async findAllWorkersForService(@Param('serviceId') serviceId: string) {
+    return this.userService.findAllWorkersForService(serviceId);
+  }
+
   @Get()
   @ApiQuery({
     name: 'category',
