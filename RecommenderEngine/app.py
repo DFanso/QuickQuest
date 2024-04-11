@@ -7,6 +7,11 @@ from sklearn.preprocessing import StandardScaler
 from bson import ObjectId
 import logging
 from fastapi.encoders import jsonable_encoder
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -15,11 +20,13 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 # Connect to MongoDB
-client = MongoClient('mongodb+srv://dfanso:lcIvCH5gv3Ns1BLk@main0.uhgf4br.mongodb.net/?retryWrites=true&w=majority')
+mongodb_connection_string = os.getenv('MONGODB_CONNECTION_STRING')
+client = MongoClient(mongodb_connection_string)
 db = client['service-hub']
 orders_collection = db['jobs']
 feedback_collection = db['feedback']
 service_collection = db['services']
+category_collection = db['categories']
 
 class RecommendationRequest(BaseModel):
     userId: str
@@ -73,6 +80,15 @@ async def get_recommendations(request: RecommendationRequest):
 
     # Fetch all services for content-based part
     all_services = list(service_collection.find())
+
+    # Populate category field on the services
+    for service in all_services:
+        category_id = service['category']
+        category = category_collection.find_one({'_id': category_id})
+        if category:
+            service['category'] = category['name']
+        else:
+            service['category'] = 'Unknown'
 
     # Content-Based Filtering Part - Placeholder for simplicity
     # Assuming each service has a 'category' and we simply recommend new services from the same category as those rated highly by the user
