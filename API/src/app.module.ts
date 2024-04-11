@@ -55,6 +55,7 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
         PAYPAL_REDIRECT_URI: Joi.string().required(),
         COGNITO_CALLBACK_URL: Joi.string().required(),
         COGNITO_DOMAIN: Joi.string().required(),
+        RECOMMENDATION_ENGINE_API: Joi.string().required(),
       }),
     }),
     MongooseModule.forRoot(

@@ -1,34 +1,39 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { RecommendationsService } from './recommendations.service';
-import { CreateRecommendationDto } from './dto/create-recommendation.dto';
-import { UpdateRecommendationDto } from './dto/update-recommendation.dto';
+import { RecommendationDto } from './dto/recommendation.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ClsService } from 'nestjs-cls';
+import { UserService } from 'src/user/user.service';
+import { AppClsStore, UserType } from 'src/Types/user.types';
+import { AuthGuard } from '@nestjs/passport';
 
-@Controller('recommendations')
+@ApiTags('recommendations')
+@Controller({ path: 'recommendations', version: '1' })
 export class RecommendationsController {
-  constructor(private readonly recommendationsService: RecommendationsService) {}
+  constructor(
+    private readonly recommendationsService: RecommendationsService,
+    private readonly clsService: ClsService,
+    private readonly userService: UserService,
+  ) {}
 
-  @Post()
-  create(@Body() createRecommendationDto: CreateRecommendationDto) {
-    return this.recommendationsService.create(createRecommendationDto);
-  }
-
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @Get()
-  findAll() {
-    return this.recommendationsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.recommendationsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRecommendationDto: UpdateRecommendationDto) {
-    return this.recommendationsService.update(+id, updateRecommendationDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.recommendationsService.remove(+id);
+  async findAll(): Promise<RecommendationDto[]> {
+    const context = this.clsService.get<AppClsStore>();
+    if (!context || !context.user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+    const user = await this.userService.findOne({ _id: context.user.id });
+    if (!user || user.type != UserType.Customer) {
+      throw new HttpException('Unauthorized User', HttpStatus.UNAUTHORIZED);
+    }
+    return this.recommendationsService.findAll(context.user.id);
   }
 }
