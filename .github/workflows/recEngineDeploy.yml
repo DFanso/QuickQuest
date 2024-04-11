@@ -3,7 +3,7 @@ name: Deploy Recommender Engine to VPS
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   deploy:
