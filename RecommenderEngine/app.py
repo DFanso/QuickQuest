@@ -19,70 +19,78 @@ client = MongoClient('mongodb+srv://dfanso:lcIvCH5gv3Ns1BLk@main0.uhgf4br.mongod
 db = client['service-hub']
 orders_collection = db['jobs']
 feedback_collection = db['feedback']
-user_collection = db['users']
 service_collection = db['services']
 
 class RecommendationRequest(BaseModel):
     userId: str
 
+def replace_object_ids(obj):
+    if isinstance(obj, list):
+        return [replace_object_ids(item) for item in obj]
+    elif isinstance(obj, dict):
+        return {key: replace_object_ids(value) for key, value in obj.items()}
+    elif isinstance(obj, ObjectId):
+        return str(obj)
+    else:
+        return obj
+
 @app.post('/recommendations')
 async def get_recommendations(request: RecommendationRequest):
     user_id = request.userId
-
-    # Convert user_id to ObjectId
     user_object_id = ObjectId(user_id)
 
-    # Retrieve user orders and feedback from MongoDB
-    user_data = []
-    for order in orders_collection.find({'customer': user_object_id}):
-        service_id = str(order['service'])  # Convert ObjectId to string
-        rating = 0  # Assign a default rating of 0 for orders
-        user_data.append({'user_id': user_id, 'service_id': service_id, 'rating': rating})
-
+    # Fetch user data from orders and feedback
+    service_ratings = {}
     for feedback in feedback_collection.find({'customer': user_object_id}):
-        service_id = str(feedback['service'])  # Convert ObjectId to string
+        service_id = str(feedback['service'])
         rating = feedback['stars']
-        user_data.append({'user_id': user_id, 'service_id': service_id, 'rating': rating})
+        service_ratings[service_id] = rating
 
-    # Log the user data
+    for order in orders_collection.find({'customer': user_object_id}):
+        service_id = str(order['service'])
+        if service_id not in service_ratings:
+            service_ratings[service_id] = 0
+
+    user_data = [{'user_id': user_id, 'service_id': sid, 'rating': rating} for sid, rating in service_ratings.items()]
     logger.info(f"User Data: {user_data}")
 
-    # Convert user data to a DataFrame
     df = pd.DataFrame(user_data)
-
-    # Log the DataFrame
     logger.info(f"DataFrame:\n{df}")
 
-    # Check if the DataFrame has the required columns and data
-    if df.empty or 'user_id' not in df.columns or 'service_id' not in df.columns or 'rating' not in df.columns:
+    if df.empty:
         logger.warning("Insufficient data for generating recommendations.")
         return {'recommendations': []}
 
-    # Pivot the DataFrame to create a matrix of users and their ratings for each service
+    # Collaborative Filtering Part
     user_service_matrix = df.pivot_table(index='user_id', columns='service_id', values='rating').fillna(0)
-
-    # Standardize the data
     scaler = StandardScaler()
     user_service_matrix_scaled = scaler.fit_transform(user_service_matrix)
     user_service_matrix_scaled_df = pd.DataFrame(user_service_matrix_scaled, index=user_service_matrix.index, columns=user_service_matrix.columns)
-
-    # Compute cosine similarity between users
     similarity_matrix = cosine_similarity(user_service_matrix_scaled_df)
     similarity_matrix_df = pd.DataFrame(similarity_matrix, index=user_service_matrix.index, columns=user_service_matrix.index)
-
-    # Find the top N similar users
     top_n_users = similarity_matrix_df[user_id].sort_values(ascending=False)[1:11].index
+    recommended_services = user_service_matrix.loc[top_n_users].mean().sort_values(ascending=False).index[:5]
 
-    # Aggregate the ratings of these users to recommend services
-    recommended_services = user_service_matrix.loc[top_n_users].mean().sort_values(ascending=False).index[:10]
+    # Fetch all services for content-based part
+    all_services = list(service_collection.find())
 
-    # Retrieve the recommended service details from MongoDB
+    # Content-Based Filtering Part - Placeholder for simplicity
+    # Assuming each service has a 'category' and we simply recommend new services from the same category as those rated highly by the user
+    user_preferred_categories = [service['category'] for service in all_services if str(service['_id']) in recommended_services]
+    unique_preferred_categories = set(user_preferred_categories)
+    new_service_recommendations = [service for service in all_services if service['category'] in unique_preferred_categories and str(service['_id']) not in recommended_services][:5]
+
+    # Combine recommendations from both parts
+    combined_recommendations_ids = list(recommended_services) + [str(service['_id']) for service in new_service_recommendations]
+
+    # Fetch and prepare final recommendation details
     recommended_service_details = []
-    for service_id in recommended_services:
+    for service_id in combined_recommendations_ids:
         service = service_collection.find_one({'_id': ObjectId(service_id)})
         if service:
-            # Recursively convert ObjectId values to strings
-            service = jsonable_encoder(service, custom_encoder={ObjectId: str})
             recommended_service_details.append(service)
 
-    return {'recommendations': recommended_service_details}
+    # Replace ObjectId fields with their string representation
+    recommended_service_details = replace_object_ids(recommended_service_details)
+
+    return jsonable_encoder({'recommendations': recommended_service_details})
