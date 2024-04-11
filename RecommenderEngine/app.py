@@ -4,6 +4,13 @@ from pydantic import BaseModel
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import StandardScaler
+from bson import ObjectId
+import logging
+from fastapi.encoders import jsonable_encoder
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -22,21 +29,34 @@ class RecommendationRequest(BaseModel):
 async def get_recommendations(request: RecommendationRequest):
     user_id = request.userId
 
+    # Convert user_id to ObjectId
+    user_object_id = ObjectId(user_id)
+
     # Retrieve user orders and feedback from MongoDB
     user_data = []
-
-    for order in orders_collection.find({'customer': user_id}):
-        service_id = order['service']
+    for order in orders_collection.find({'customer': user_object_id}):
+        service_id = str(order['service'])  # Convert ObjectId to string
         rating = 0  # Assign a default rating of 0 for orders
         user_data.append({'user_id': user_id, 'service_id': service_id, 'rating': rating})
 
-    for feedback in feedback_collection.find({'customer': user_id}):
-        service_id = feedback['service']
+    for feedback in feedback_collection.find({'customer': user_object_id}):
+        service_id = str(feedback['service'])  # Convert ObjectId to string
         rating = feedback['stars']
         user_data.append({'user_id': user_id, 'service_id': service_id, 'rating': rating})
 
+    # Log the user data
+    logger.info(f"User Data: {user_data}")
+
     # Convert user data to a DataFrame
     df = pd.DataFrame(user_data)
+
+    # Log the DataFrame
+    logger.info(f"DataFrame:\n{df}")
+
+    # Check if the DataFrame has the required columns and data
+    if df.empty or 'user_id' not in df.columns or 'service_id' not in df.columns or 'rating' not in df.columns:
+        logger.warning("Insufficient data for generating recommendations.")
+        return {'recommendations': []}
 
     # Pivot the DataFrame to create a matrix of users and their ratings for each service
     user_service_matrix = df.pivot_table(index='user_id', columns='service_id', values='rating').fillna(0)
@@ -61,6 +81,8 @@ async def get_recommendations(request: RecommendationRequest):
     for service_id in recommended_services:
         service = service_collection.find_one({'_id': ObjectId(service_id)})
         if service:
+            # Recursively convert ObjectId values to strings
+            service = jsonable_encoder(service, custom_encoder={ObjectId: str})
             recommended_service_details.append(service)
 
     return {'recommendations': recommended_service_details}
