@@ -21,6 +21,7 @@ import { PaypalModule } from './paypal/paypal.module';
 import { EmailModule } from './email/email.module';
 import { FeedbacksModule } from './feedbacks/feedbacks.module';
 import { ChatsModule } from './chats/chats.module';
+import { RecommendationsModule } from './recommendations/recommendations.module';
 
 mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
   Logger.verbose(
@@ -54,6 +55,7 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
         PAYPAL_REDIRECT_URI: Joi.string().required(),
         COGNITO_CALLBACK_URL: Joi.string().required(),
         COGNITO_DOMAIN: Joi.string().required(),
+        RECOMMENDATION_ENGINE_API: Joi.string().required(),
       }),
     }),
     MongooseModule.forRoot(
@@ -91,6 +93,7 @@ mongoose.set('debug', (collectionName, methodName, ...methodArgs) => {
     EmailModule,
     FeedbacksModule,
     ChatsModule,
+    RecommendationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

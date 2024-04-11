@@ -31,7 +31,7 @@ import { Job } from 'src/jobs/entities/job.entity';
 import { OfferStatus } from 'src/Types/offer.types';
 
 @ApiTags('offers')
-@Controller('offers')
+@Controller({ path: 'offers', version: '1' })
 export class OffersController {
   constructor(
     private readonly offersService: OffersService,
