@@ -1,26 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { CreateRecommendationDto } from './dto/create-recommendation.dto';
-import { UpdateRecommendationDto } from './dto/update-recommendation.dto';
+import { HttpService } from '@nestjs/axios';
+import { RecommendationDto } from './dto/recommendation.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class RecommendationsService {
-  create(createRecommendationDto: CreateRecommendationDto) {
-    return 'This action adds a new recommendation';
-  }
+  constructor(
+    private httpService: HttpService,
+    private readonly configService: ConfigService,
+  ) {}
 
-  findAll() {
-    return `This action returns all recommendations`;
-  }
+  async findAll(userId: string): Promise<RecommendationDto[]> {
+    const requestBody = { userId };
 
-  findOne(id: number) {
-    return `This action returns a #${id} recommendation`;
-  }
+    const response = await this.httpService
+      .post(
+        `${this.configService.get<string>('RECOMMENDATION_ENGINE_API')}/recommendations`,
+        requestBody,
+      )
+      .toPromise();
 
-  update(id: number, updateRecommendationDto: UpdateRecommendationDto) {
-    return `This action updates a #${id} recommendation`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} recommendation`;
+    return response.data.recommendations;
   }
 }

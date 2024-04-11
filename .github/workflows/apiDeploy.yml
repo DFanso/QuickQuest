@@ -49,6 +49,7 @@ jobs:
           PAYPAL_REDIRECT_URI=${{ secrets.PAYPAL_REDIRECT_URI }}
           COGNITO_CALLBACK_URL=${{ secrets.COGNITO_CALLBACK_URL }}
           COGNITO_DOMAIN=${{ secrets.COGNITO_DOMAIN }}
+          RECOMMENDATION_ENGINE_API=${{ secrets.RECOMMENDATION_ENGINE_API }}
 
     - name: SSH and Deploy
       uses: appleboy/ssh-action@master
