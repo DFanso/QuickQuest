@@ -42,4 +42,4 @@ jobs:
           docker pull dfanso/recommender-engine:latest
           docker stop recommender-engine || true
           docker rm recommender-engine || true
-          docker run -d --name recommender-engine -p 4001:8000 --env-file .env dfanso/recommender-engine:latest
+          docker run -d --name recommender-engine -p 4001:8000 dfanso/recommender-engine:latest
