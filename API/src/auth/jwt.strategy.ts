@@ -31,20 +31,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       ignoreExpiration: false,
       secretOrKeyProvider: (req, rawJwtToken, done) => {
         const jwks = new jwksRsa.JwksClient({ jwksUri });
-
         const decodedToken = jwt.decode(rawJwtToken, { complete: true });
+
         if (
           !decodedToken ||
           typeof decodedToken === 'string' ||
           !decodedToken.header.kid
         ) {
-          throw new UnauthorizedException('Invalid token');
+          return done(new UnauthorizedException('Invalid token'));
         }
 
         jwks.getSigningKey(decodedToken.header.kid, (err, key) => {
           if (err) {
-            throw new UnauthorizedException('Invalid token');
+            return done(new UnauthorizedException('Invalid token'));
           }
+
           const signingKey = key.getPublicKey();
           done(null, signingKey);
         });
