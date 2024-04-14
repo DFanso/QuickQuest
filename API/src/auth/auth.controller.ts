@@ -194,13 +194,16 @@ export class AuthController {
     const user = await this.userService.findOne({
       email: reRequestCodeDto.email,
     });
-    if (user) {
-      user.status === UserStatus.Verified;
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (user.status === UserStatus.Verified) {
       throw new HttpException(
         'User already verified',
         HttpStatus.METHOD_NOT_ALLOWED,
       );
     }
+
     try {
       await this.cognitoService.resendConfirmationCode(reRequestCodeDto);
       return {
