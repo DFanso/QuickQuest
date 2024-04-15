@@ -7,18 +7,21 @@ import {
   HttpException,
   HttpStatus,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { JobsService } from './jobs.service';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { ClsService } from 'nestjs-cls';
 import { AppClsStore, UserType } from 'src/Types/user.types';
 import { UserService } from 'src/user/user.service';
+import { JobStatus } from 'src/Types/jobs.types';
 
 @ApiTags('jobs')
 @Controller({ path: 'jobs', version: '1' })
@@ -82,8 +85,22 @@ export class JobsController {
   }
 
   @Get()
-  findAll() {
-    return this.jobsService.findAll();
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all jobs' })
+  @ApiQuery({ name: 'status', required: false, enum: JobStatus })
+  @UseGuards(AuthGuard('jwt'))
+  async findAll(@Query('status') status?: JobStatus) {
+    const context = this.clsService.get<AppClsStore>();
+    if (!context || !context.user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+
+    const user = await this.userService.findOne({ _id: context.user.id });
+    if (!user) {
+      throw new HttpException('Unauthorized User', HttpStatus.UNAUTHORIZED);
+    }
+
+    return this.jobsService.findAll(status, user);
   }
 
   @Get(':id')
