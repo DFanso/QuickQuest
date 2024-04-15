@@ -99,7 +99,13 @@ export class JobsService {
         path: 'worker',
         model: 'User',
       })
-      .populate('service')
+      .populate({
+        path: 'service',
+        populate: {
+          path: 'category',
+          model: 'Category',
+        },
+      })
       .exec();
   }
 
