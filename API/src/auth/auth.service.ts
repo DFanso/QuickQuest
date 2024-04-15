@@ -4,6 +4,7 @@ import { AppClsStore, UserStatus, UserType } from 'src/Types/user.types';
 import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { ConfigService } from '@nestjs/config';
+import { UpdateSSOProfileDto } from './dto/updateSSOProfile.dto';
 
 @Injectable()
 export class AuthService {
@@ -52,5 +53,24 @@ export class AuthService {
     );
 
     return JSON.parse(jsonPayload);
+  }
+
+  async updateSSOProfile(
+    userId: string,
+    updateSSOProfileDto: UpdateSSOProfileDto,
+  ) {
+    const user = await this.userService.findOne({ _id: userId });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    user.firstName = updateSSOProfileDto.firstName || user.firstName;
+    user.lastName = updateSSOProfileDto.lastName || user.lastName;
+    user.profileImage = updateSSOProfileDto.profileImage || user.profileImage;
+    user.location = updateSSOProfileDto.location || user.location;
+    user.status = UserStatus.Verified;
+
+    const updatedUser = await user.save();
+    return updatedUser;
   }
 }

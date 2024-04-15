@@ -8,6 +8,8 @@ import {
   HttpStatus,
   Res,
   Query,
+  Put,
+  Param,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CognitoService } from './CognitoService';
@@ -29,6 +31,8 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { Response } from 'express';
 import { UserStatus, UserType } from 'src/Types/user.types';
 import { ReRequestCodeDto } from './dto/re-request-code.dto';
+import { UpdateSSOProfileDto } from './dto/updateSSOProfile.dto';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('auth')
 @Controller({ path: 'auth', version: '1' })
@@ -38,6 +42,7 @@ export class AuthController {
     private readonly cognitoService: CognitoService,
     private readonly clsService: ClsService,
     private readonly userService: UserService,
+    private configService: ConfigService,
   ) {}
 
   @ApiOperation({ summary: 'Register a new user' })
@@ -178,7 +183,9 @@ export class AuthController {
         };
         user = await this.userService.create(createUserDto);
       }
-      res.json({ token: idToken });
+      // Redirect the user to the frontend with the token
+      const frontendUrl = `${this.configService.get<string>('FRONTEND_URL')}/ProfileHandler?token=${idToken}`;
+      res.redirect(frontendUrl);
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('An error occurred');
     }
@@ -211,6 +218,29 @@ export class AuthController {
         message:
           'Verification code has been sent to your email. Please check your inbox.',
       };
+    } catch (error) {
+      throw new HttpException(`${error.message}`, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Update SSO Profile' })
+  @ApiBody({ type: UpdateSSOProfileDto })
+  @ApiResponse({ status: 200, description: 'Profile updated successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @Put('update-sso-profile/:userId')
+  async updateSSOProfile(
+    @Param('userId') userId: string,
+    @Body() updateSSOProfileDto: UpdateSSOProfileDto,
+  ) {
+    try {
+      const updatedUser = await this.authService.updateSSOProfile(
+        userId,
+        updateSSOProfileDto,
+      );
+      return { message: 'Profile updated successfully', data: updatedUser };
     } catch (error) {
       throw new HttpException(`${error.message}`, HttpStatus.BAD_REQUEST);
     }
