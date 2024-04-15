@@ -76,8 +76,31 @@ export class JobsService {
     }
   }
 
-  findAll() {
-    return `This action returns all jobs`;
+  async findAll(status?: JobStatus, user?: User) {
+    let query = this.jobModel.find();
+
+    if (status) {
+      query = query.where('status', status);
+    }
+
+    if (user) {
+      query = query.where('$or', [
+        { customer: user._id },
+        { worker: user._id },
+      ]);
+    }
+
+    return query
+      .populate({
+        path: 'customer',
+        model: 'User',
+      })
+      .populate({
+        path: 'worker',
+        model: 'User',
+      })
+      .populate('service')
+      .exec();
   }
 
   async findOne(id: string): Promise<Job> {
