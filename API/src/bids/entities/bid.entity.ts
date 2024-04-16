@@ -9,9 +9,7 @@ export type BidDocument = Bid & Document;
 
 @Schema({ timestamps: true })
 export class Bid {
-  @ApiProperty({ description: 'Customer', type: User })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
-  @IsNotEmpty()
   customer: User;
 
   @ApiProperty({ description: 'Service', type: Service })

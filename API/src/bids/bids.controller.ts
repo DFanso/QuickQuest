@@ -84,11 +84,13 @@ export class BidsController {
   @ApiOperation({ summary: 'Get all bids with pagination' })
   @ApiQuery({ name: 'page', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
+  @ApiQuery({ name: 'customerId', type: String, required: false })
   async findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
+    @Query('customerId') customerId?: string,
   ): Promise<{ bids: Bid[]; totalPages: number }> {
-    return this.bidsService.findAll(page, limit);
+    return this.bidsService.findAll(page, limit, customerId);
   }
 
   @Get(':id')

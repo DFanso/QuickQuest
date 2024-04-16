@@ -11,12 +11,14 @@ import { CreateBidDto } from './dto/create-bid.dto';
 import { UpdateBidDto } from './dto/update-bid.dto';
 import { Bid, BidDocument } from './entities/bid.entity';
 import { UserService } from 'src/user/user.service';
+import { ClsService } from 'nestjs-cls';
 
 @Injectable()
 export class BidsService {
   constructor(
     @InjectModel(Bid.name) private bidModel: Model<BidDocument>,
     private readonly userService: UserService,
+    private readonly clsService: ClsService,
   ) {}
 
   async create(createBidDto: CreateBidDto): Promise<Bid> {
@@ -55,27 +57,31 @@ export class BidsService {
   async findAll(
     page: number,
     limit: number,
+    customerId?: string,
   ): Promise<{ bids: Bid[]; totalPages: number }> {
     const skip = (page - 1) * limit;
+    const query = this.bidModel
+      .find()
+      .populate({ path: 'customer', model: 'User' })
+      .populate('service')
+      .skip(skip)
+      .limit(limit);
+
+    if (customerId) {
+      query.where('customer').equals(customerId);
+    }
 
     const [bids, totalCount] = await Promise.all([
+      query.exec(),
       this.bidModel
-        .find()
-        .populate({
-          path: 'customer',
-          model: 'User',
-        })
-        .populate('service')
-        .skip(skip)
-        .limit(limit)
+        .countDocuments(customerId ? { customer: customerId } : {})
         .exec(),
-      this.bidModel.countDocuments().exec(),
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);
-
     return { bids, totalPages };
   }
+
   async findOne(id: string): Promise<Bid> {
     return this.bidModel
       .findById(id)

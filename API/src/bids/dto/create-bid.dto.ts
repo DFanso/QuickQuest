@@ -9,8 +9,6 @@ import {
 } from 'class-validator';
 
 export class CreateBidDto {
-  @IsNotEmpty()
-  @IsMongoId()
   customer: string;
 
   @ApiProperty({
