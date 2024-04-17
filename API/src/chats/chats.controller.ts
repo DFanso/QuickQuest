@@ -22,7 +22,7 @@ import { Observable, map } from 'rxjs';
 import { ContentType } from 'src/Types/chat.types';
 import { AuthGuard } from '@nestjs/passport';
 import { ClsService } from 'nestjs-cls';
-import { AppClsStore, UserType } from 'src/Types/user.types';
+import { AppClsStore } from 'src/Types/user.types';
 import { UserService } from 'src/user/user.service';
 
 @ApiTags('chats')
@@ -43,6 +43,7 @@ export class ChatsController {
       type: 'object',
       properties: {
         workerId: { type: 'string' },
+        customerId: { type: 'string' },
       },
     },
   })
@@ -50,7 +51,10 @@ export class ChatsController {
     status: 201,
     description: 'The chat has been successfully created',
   })
-  async createChat(@Body('workerId') workerId: string): Promise<any> {
+  async createChat(
+    @Body() body: { workerId: string; customerId: string },
+  ): Promise<any> {
+    const { workerId, customerId } = body;
     const context = this.clsService.get<AppClsStore>();
     if (!context || !context.user) {
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
@@ -59,7 +63,7 @@ export class ChatsController {
     if (!user) {
       throw new HttpException('Unauthorized User', HttpStatus.UNAUTHORIZED);
     }
-    const chat = await this.chatService.createChat(context.user.id, workerId);
+    const chat = await this.chatService.createChat(customerId, workerId);
     return { chatId: chat._id };
   }
 
