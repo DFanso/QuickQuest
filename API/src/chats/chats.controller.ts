@@ -56,7 +56,7 @@ export class ChatsController {
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }
     const user = await this.userService.findOne({ _id: context.user.id });
-    if (!user || user.type !== UserType.Customer) {
+    if (!user) {
       throw new HttpException('Unauthorized User', HttpStatus.UNAUTHORIZED);
     }
     const chat = await this.chatService.createChat(context.user.id, workerId);
