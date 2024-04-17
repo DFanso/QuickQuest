@@ -25,7 +25,13 @@ export class OffersService {
     return this.offerModel
       .findOne(filter)
       .populate('worker')
-      .populate('service')
+      .populate({
+        path: 'service',
+        populate: {
+          path: 'category',
+          model: 'Category',
+        },
+      })
       .exec();
   }
 
