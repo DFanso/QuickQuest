@@ -177,7 +177,11 @@ export class UserService {
     paypalEmail: string,
   ): Promise<UserDocument> {
     const updatedUser = await this.userModel
-      .findByIdAndUpdate(workerId, { paypalEmail: paypalEmail }, { new: true })
+      .findByIdAndUpdate(
+        workerId,
+        { paypalEmail: paypalEmail, status: UserStatus.Verified },
+        { new: true },
+      )
       .exec();
 
     if (!updatedUser) {
