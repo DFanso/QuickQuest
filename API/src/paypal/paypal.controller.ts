@@ -123,6 +123,7 @@ export class PaypalController {
   async callback(
     @Query('code') authorizationCode: string,
     @Query('state') workerId: string,
+    @Res() res: Response,
   ) {
     try {
       const accessToken =
@@ -130,10 +131,14 @@ export class PaypalController {
       const paypalEmail = await this.paypalService.getPaypalEmail(accessToken);
       console.log(paypalEmail, ' ', workerId);
       await this.paypalService.updateWorkerPaypalEmail(workerId, paypalEmail);
+      const frontendUrl = 'https://worker-quick-quest.vercel.app/login';
+      res.redirect(frontendUrl);
       return { success: true, message: 'PayPal email updated successfully' };
     } catch (error) {
       console.error('Error updating PayPal email:', error);
       console.error('Authorization Code:', authorizationCode);
+      const frontendUrl = 'https://worker-quick-quest.vercel.app/login';
+      res.redirect(frontendUrl);
       return {
         success: false,
         message: 'Error updating PayPal email',
