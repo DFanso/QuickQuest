@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 import {
   IsEmail,
@@ -12,7 +12,6 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { UserType, UserStatus } from '../../Types/user.types';
-import { Service } from 'src/services/entities/service.entity';
 
 export type UserDocument = User & Document;
 
@@ -55,7 +54,7 @@ export class User {
   @IsOptional()
   @ValidateNested({ each: true })
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Service' }] })
-  services?: Service[] | mongoose.Schema.Types.ObjectId[];
+  services?: Types.ObjectId[];
 
   @ApiProperty({ enum: UserType, description: 'User Type' })
   @IsEnum(UserType)
