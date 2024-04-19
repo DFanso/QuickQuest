@@ -7,7 +7,7 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './entities/user.entity';
-import { PaginateModel } from 'mongoose';
+import { PaginateModel, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClsService } from 'nestjs-cls';
 import { AppClsStore, UserStatus, UserType } from '../Types/user.types';
@@ -53,7 +53,7 @@ export class UserService {
       throw new NotFoundException('Customer not found');
     }
 
-    const radius = 10 / 6378.1;
+    const radius = 30 / 6378.1;
     const query: any = {
       type: UserType.Worker,
       status: UserStatus.Verified,
@@ -189,5 +189,78 @@ export class UserService {
     }
 
     return updatedUser;
+  }
+
+  async addServicesToWorker(
+    workerId: string,
+    serviceIds: string[],
+  ): Promise<Types.ObjectId[]> {
+    // Check if serviceIds is defined and is an array
+    if (!Array.isArray(serviceIds)) {
+      throw new HttpException(
+        'Invalid serviceIds parameter',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const worker = await this.userModel.findById(workerId);
+
+    if (!worker) {
+      throw new HttpException('Worker not found', HttpStatus.NOT_FOUND);
+    }
+
+    const existingServices = worker.services.map((service) =>
+      service instanceof Types.ObjectId ? service : new Types.ObjectId(service),
+    );
+
+    const newServices = serviceIds
+      .map((serviceId) => new Types.ObjectId(serviceId))
+      .filter(
+        (serviceId) =>
+          !existingServices.some((service) => service.equals(serviceId)),
+      );
+
+    if (newServices.length === 0) {
+      throw new HttpException(
+        'All services are already added',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    worker.services = [...existingServices, ...newServices];
+
+    await worker.save();
+
+    return newServices;
+  }
+
+  async removeServiceFromWorker(
+    workerId: string,
+    serviceId: string,
+  ): Promise<boolean> {
+    const worker = await this.userModel.findById(workerId);
+
+    if (!worker) {
+      throw new HttpException('Worker not found', HttpStatus.NOT_FOUND);
+    }
+
+    const existingServices = worker.services.map((service) =>
+      service.toString(),
+    );
+
+    if (!existingServices.includes(serviceId)) {
+      throw new HttpException(
+        'Service not found for the worker',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    worker.services = worker.services.filter(
+      (service) => service.toString() !== serviceId,
+    );
+
+    await worker.save();
+
+    return true;
   }
 }
