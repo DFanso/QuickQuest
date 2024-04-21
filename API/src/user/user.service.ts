@@ -156,7 +156,7 @@ export class UserService {
     updateUserDto: UpdateUserDto,
   ): Promise<UserDocument> {
     const updatedUser = await this.userModel
-      .findByIdAndUpdate(id, updateUserDto, { new: true })
+      .findByIdAndUpdate({ _id: id }, updateUserDto, { new: true })
       .exec();
     if (!updatedUser) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
