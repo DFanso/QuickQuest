@@ -10,7 +10,7 @@ import { Model } from 'mongoose';
 import { CreateBidDto } from './dto/create-bid.dto';
 import { UpdateBidDto } from './dto/update-bid.dto';
 import { Bid, BidDocument } from './entities/bid.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 import { ClsService } from 'nestjs-cls';
 
 @Injectable()

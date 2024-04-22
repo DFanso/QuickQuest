@@ -11,7 +11,7 @@ import { PaginateModel, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClsService } from 'nestjs-cls';
 import { AppClsStore, UserStatus, UserType } from '../Types/user.types';
-import { FeedbacksService } from 'src/feedbacks/feedbacks.service';
+import { FeedbacksService } from '../feedbacks/feedbacks.service';
 
 @Injectable()
 export class UserService {

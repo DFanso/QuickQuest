@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, Min, IsString } from 'class-validator';
-import { Service } from 'src/services/entities/service.entity';
+import { Service } from '../../services/entities/service.entity';
 import * as mongoose from 'mongoose';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../../user/entities/user.entity';
 
 export type BidDocument = Bid & Document;
 
