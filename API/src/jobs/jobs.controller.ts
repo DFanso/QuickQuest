@@ -84,6 +84,24 @@ export class JobsController {
     }
   }
 
+  @Get('/admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all jobs for Admin' })
+  @UseGuards(AuthGuard('jwt'))
+  async findAllAdmin() {
+    const context = this.clsService.get<AppClsStore>();
+    if (!context || !context.user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+
+    const user = await this.userService.findOne({ _id: context.user.id });
+    if (!user || user.type !== UserType.Admin) {
+      throw new HttpException('Unauthorized User', HttpStatus.UNAUTHORIZED);
+    }
+
+    return this.jobsService.findAllAdmin();
+  }
+
   @Get()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all jobs' })
