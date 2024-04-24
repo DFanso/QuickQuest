@@ -109,6 +109,27 @@ export class JobsService {
       .exec();
   }
 
+  async findAllAdmin() {
+    const jobs = this.jobModel.find({});
+    return jobs
+      .populate({
+        path: 'customer',
+        model: 'User',
+      })
+      .populate({
+        path: 'worker',
+        model: 'User',
+      })
+      .populate({
+        path: 'service',
+        populate: {
+          path: 'category',
+          model: 'Category',
+        },
+      })
+      .exec();
+  }
+
   async findOne(id: string): Promise<Job> {
     return this.jobModel
       .findById(id)
