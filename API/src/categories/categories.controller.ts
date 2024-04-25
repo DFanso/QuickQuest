@@ -77,7 +77,7 @@ export class CategoriesController {
   @ApiResponse({ status: 404, description: 'Category not found.' })
   @ApiParam({ name: 'id', description: 'The id of the category to retrieve' })
   findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(id);
+    return this.categoriesService.findOne({ _id: id });
   }
 
   @ApiBearerAuth()
@@ -96,7 +96,7 @@ export class CategoriesController {
     if (!context || !context.user) {
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }
-    const user = await this.userService.findOne({ userId: context.user.id });
+    const user = await this.userService.findOne({ _id: context.user.id });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -118,7 +118,7 @@ export class CategoriesController {
     if (!context || !context.user) {
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }
-    const user = await this.userService.findOne({ userId: context.user.id });
+    const user = await this.userService.findOne({ _id: context.user.id });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
