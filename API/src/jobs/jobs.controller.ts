@@ -127,7 +127,18 @@ export class JobsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.jobsService.remove(+id);
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  async remove(@Param('id') id: string) {
+    const context = this.clsService.get<AppClsStore>();
+    if (!context || !context.user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+
+    const user = await this.userService.findOne({ _id: context.user.id });
+    if (!user || user.type !== UserType.Admin) {
+      throw new HttpException('Unauthorized User', HttpStatus.UNAUTHORIZED);
+    }
+    return this.jobsService.remove(id);
   }
 }
