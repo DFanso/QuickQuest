@@ -333,7 +333,13 @@ export class JobsService {
     return jobsNearingDelivery;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} job`;
+  async remove(id: string): Promise<{ deleted: boolean; id: string }> {
+    const result = await this.jobModel.deleteOne({ _id: id }).exec();
+
+    if (result.deletedCount === 0) {
+      throw new HttpException('Bid not found', HttpStatus.NOT_FOUND);
+    }
+
+    return { deleted: true, id };
   }
 }
