@@ -67,7 +67,7 @@ export class OffersController {
     if (!service) {
       throw new HttpException('Service not found', HttpStatus.NOT_FOUND);
     }
-    if (createOfferDto.price <= service.startingPrice) {
+    if (createOfferDto.price < service.startingPrice) {
       throw new HttpException(
         'Price too low for the service starting price',
         HttpStatus.FORBIDDEN,
