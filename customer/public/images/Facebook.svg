@@ -1,0 +1,19 @@
+<svg width="71" height="71" viewBox="0 0 71 71" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Socmed/Facebook">
+<g id="Ellipse 176" filter="url(#filter0_d_140_7189)">
+<circle cx="35.4251" cy="22.2977" r="16.7999" fill="#173735"/>
+</g>
+<path id="Vector" d="M33.345 5C24.3178 5 17 12.5058 17 21.765C17 31.0242 24.3178 38.53 33.345 38.53C42.3722 38.53 49.69 31.0242 49.69 21.765C49.69 12.5058 42.3722 5 33.345 5ZM37.2167 16.5853H34.7599C34.4687 16.5853 34.1452 16.9782 34.1452 17.5004V19.3201H37.2184L36.7536 21.9152H34.1452V29.7057H31.2457V21.9152H28.6152V19.3201H31.2457V17.7938C31.2457 15.6039 32.727 13.8243 34.7599 13.8243H37.2167V16.5853Z" fill="white"/>
+</g>
+<defs>
+<filter id="filter0_d_140_7189" x="0.625122" y="0.497803" width="69.5999" height="69.5999" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="13"/>
+<feGaussianBlur stdDeviation="9"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.0658854 0 0 0 0 0.0730469 0 0 0 0 0.1375 0 0 0 0.08 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_140_7189"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_140_7189" result="shape"/>
+</filter>
+</defs>
+</svg>
