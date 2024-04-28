@@ -42,7 +42,7 @@ export default function LabourPageServices({ worker }) {
         });
 
         try {
-          const response = await fetch(`https://api.quick-quest.dfanso.dev/v1/workers/services/${serviceId}`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/v1/workers/services/${serviceId}`, {
             method: 'DELETE',
             headers: {
               'Accept': '*/*',

@@ -18,7 +18,7 @@ const CategoryCard = ({ category, selectedCategory, setSelectedCategory, selecte
     const fetchServices = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`https://api.quick-quest.dfanso.dev/v1/services?category=${category._id}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/v1/services?category=${category._id}`);
         setServices(response.data);
       } catch (error) {
         console.error('Error fetching services:', error);
