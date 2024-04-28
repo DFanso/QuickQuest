@@ -1,0 +1,22 @@
+/* page.module.css */
+@media (max-width: 639px) {
+    .hero-container {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .hero-text {
+        width: 100%;
+        padding-left: 0;
+        padding-top: 1rem;
+        /* Adjust padding as needed */
+        margin-bottom: 1rem;
+        /* Adjust margin as needed */
+    }
+
+    .hero-image {
+        width: 100%;
+        margin-bottom: 1rem;
+        /* Adjust margin as needed */
+    }
+}
