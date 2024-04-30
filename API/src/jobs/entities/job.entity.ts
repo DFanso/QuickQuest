@@ -11,7 +11,7 @@ import {
 import mongoose from 'mongoose';
 import { User } from '../../user/entities/user.entity';
 import { Service } from '../../services/entities/service.entity';
-import { JobStatus } from 'src/Types/jobs.types';
+import { JobStatus } from '../../Types/jobs.types';
 
 export type JobDocument = Job & Document;
 
