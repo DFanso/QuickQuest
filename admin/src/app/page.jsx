@@ -1,4 +1,3 @@
-// Dashboard.js
 "use client";
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
@@ -22,8 +21,8 @@ const DashboardCard = ({ icon, title, value }) => {
 };
 
 const options = {
-  maintainAspectRatio: false, // Allows custom control of height
-  aspectRatio: 2, // Aspect ratio of the chart, you can adjust this value
+  maintainAspectRatio: false, 
+  aspectRatio: 2,
   scales: {
     y: {
       beginAtZero: true,
