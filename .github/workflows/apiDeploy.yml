@@ -30,7 +30,7 @@ jobs:
           cd API
           npm run test
 
-  deploy:
+  CD:
     needs: CI # Ensure the test job passes before deploying
     runs-on: ubuntu-latest
     if: github.event_name == 'push' # Only run on push events
