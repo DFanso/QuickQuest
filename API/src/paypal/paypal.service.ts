@@ -4,7 +4,7 @@ import * as paypal from '@paypal/checkout-server-sdk';
 import * as payouts from '@paypal/payouts-sdk';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class PaypalService {

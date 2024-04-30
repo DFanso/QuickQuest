@@ -17,8 +17,8 @@ export class CategoriesService {
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    const createdCategory = new this.categoryModel(createCategoryDto);
-    return createdCategory.save();
+    const createdCategory = await this.categoryModel.create(createCategoryDto);
+    return createdCategory;
   }
 
   async findAll(): Promise<Category[]> {
@@ -26,14 +26,7 @@ export class CategoriesService {
   }
 
   async findOne(filter: any): Promise<Category | null> {
-    const category = await this.categoryModel
-      .findOne(
-        filter,
-        Object.keys(this.categoryModel.schema.obj)
-          .map((key) => key)
-          .join(' '),
-      )
-      .exec();
+    const category = await this.categoryModel.findOne(filter).exec();
     if (!category) {
       throw new NotFoundException(`Category not found`);
     }

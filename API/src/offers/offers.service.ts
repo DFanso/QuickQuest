@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
 import { Offer, OfferDocument } from './entities/offer.entity';
-import { OfferStatus } from 'src/Types/offer.types';
+import { OfferStatus } from '../Types/offer.types';
 
 @Injectable()
 export class OffersService {
@@ -13,8 +13,8 @@ export class OffersService {
   ) {}
 
   async create(createOfferDto: CreateOfferDto): Promise<Offer> {
-    const createdOffer = new this.offerModel(createOfferDto);
-    return createdOffer.save();
+    const createdOffer = await this.offerModel.create(createOfferDto);
+    return createdOffer;
   }
 
   async findAll(): Promise<Offer[]> {
