@@ -2,9 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, Min, IsString, IsEnum } from 'class-validator';
 import mongoose from 'mongoose';
-import { OfferStatus } from 'src/Types/offer.types';
-import { Service } from 'src/services/entities/service.entity';
-import { User } from 'src/user/entities/user.entity';
+import { OfferStatus } from '../../Types/offer.types';
+import { Service } from '../../services/entities/service.entity';
+import { User } from '../../user/entities/user.entity';
 
 export type OfferDocument = Offer & Document;
 
