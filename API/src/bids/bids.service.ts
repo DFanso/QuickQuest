@@ -22,8 +22,8 @@ export class BidsService {
   ) {}
 
   async create(createBidDto: CreateBidDto): Promise<Bid> {
-    const createdBid = new this.bidModel(createBidDto);
-    return createdBid.save();
+    const createdBid = await this.bidModel.create(createBidDto);
+    return createdBid;
   }
 
   async findMatchingBids(userId: string): Promise<Bid[]> {
