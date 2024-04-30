@@ -9,7 +9,7 @@ on:
       - dev # Set this to your default branch
 
 jobs:
-  test:
+  CI:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -31,7 +31,7 @@ jobs:
           npm run test
 
   deploy:
-    needs: test # Ensure the test job passes before deploying
+    needs: CI # Ensure the test job passes before deploying
     runs-on: ubuntu-latest
     if: github.event_name == 'push' # Only run on push events
     steps:
