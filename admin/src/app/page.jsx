@@ -30,7 +30,7 @@ const options = {
   },
   plugins: {
     legend: {
-      display: true, // This will hide the legend
+      display: true,
     },
   },
 };
