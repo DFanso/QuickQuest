@@ -18,8 +18,8 @@ export class ServicesService {
   ) {}
 
   async create(createServiceDto: CreateServiceDto): Promise<ServiceDocument> {
-    const createdService = new this.serviceModel(createServiceDto);
-    return createdService.save();
+    const createdService = await this.serviceModel.create(createServiceDto);
+    return createdService;
   }
 
   async findAll(category?: string): Promise<ServiceDocument[]> {

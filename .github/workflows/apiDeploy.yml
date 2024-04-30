@@ -1,64 +1,89 @@
-name: Deploy API TO VPS
+name: API CI/CD
 
 on:
+  pull_request:
+    branches:
+      - dev # Set this to your default branch
   push:
     branches:
-      - dev  # Set this to your default branch
+      - dev # Set this to your default branch
 
 jobs:
-  deploy:
+  CI:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
 
-    - name: Login to DockerHub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Install dependencies
+        run: |
+          cd API
+          npm ci
 
-    - name: Build and Push Docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: ./API
-        file: ./API/Dockerfile
-        push: true
-        tags: dfanso/quick-quest_backend:latest 
-        build-args: |
-          MONGO_URI=${{ secrets.MONGO_URI }}
-          AWS_REGION=${{ secrets.AWS_REGION }}
-          AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}
-          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          COGNITO_USER_POOL_ID=${{ secrets.COGNITO_USER_POOL_ID }}
-          COGNITO_CLIENT_ID=${{ secrets.COGNITO_CLIENT_ID }}
-          COGNITO_CLIENT_SECRET=${{ secrets.COGNITO_CLIENT_SECRET }}
-          PAYPAL_CLIENT_ID=${{ secrets.PAYPAL_CLIENT_ID }}
-          PAYPAL_CLIENT_SECRET=${{ secrets.PAYPAL_CLIENT_SECRET }}
-          FRONTEND_URL=${{ secrets.FRONTEND_URL }}
-          BREVO_SMTP=${{ secrets.BREVO_SMTP }}
-          BREVO_SMTP_PORT=${{ secrets.BREVO_SMTP_PORT }}
-          BREVO_USER=${{ secrets.BREVO_USER }}
-          BREVO_PASS=${{ secrets.BREVO_PASS }}
-          EMAIL_FROM_ADDRESS=${{ secrets.EMAIL_FROM_ADDRESS }}
-          PAYPAL_REDIRECT_URI=${{ secrets.PAYPAL_REDIRECT_URI }}
-          COGNITO_CALLBACK_URL=${{ secrets.COGNITO_CALLBACK_URL }}
-          COGNITO_DOMAIN=${{ secrets.COGNITO_DOMAIN }}
-          RECOMMENDATION_ENGINE_API=${{ secrets.RECOMMENDATION_ENGINE_API }}
+      - name: Run tests
+        run: |
+          cd API
+          npm run test
 
-    - name: SSH and Deploy
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.VPS_HOST }}
-        username: ${{ secrets.VPS_USERNAME }}
-        password: ${{ secrets.VPS_PASSWORD }} 
-        script: | 
-          docker pull dfanso/quick-quest_backend:latest
-          docker stop quick-quest_backend || true
-          docker rm quick-quest_backend || true
-          docker run -d --name quick-quest_backend -p 4000:9000 dfanso/quick-quest_backend:latest
+  CD:
+    needs: CI # Ensure the test job passes before deploying
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' # Only run on push events
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./API
+          file: ./API/Dockerfile
+          push: true
+          tags: dfanso/quick-quest_backend:latest
+          build-args: |
+            MONGO_URI=${{ secrets.MONGO_URI }}
+            AWS_REGION=${{ secrets.AWS_REGION }}
+            AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            COGNITO_USER_POOL_ID=${{ secrets.COGNITO_USER_POOL_ID }}
+            COGNITO_CLIENT_ID=${{ secrets.COGNITO_CLIENT_ID }}
+            COGNITO_CLIENT_SECRET=${{ secrets.COGNITO_CLIENT_SECRET }}
+            PAYPAL_CLIENT_ID=${{ secrets.PAYPAL_CLIENT_ID }}
+            PAYPAL_CLIENT_SECRET=${{ secrets.PAYPAL_CLIENT_SECRET }}
+            FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+            BREVO_SMTP=${{ secrets.BREVO_SMTP }}
+            BREVO_SMTP_PORT=${{ secrets.BREVO_SMTP_PORT }}
+            BREVO_USER=${{ secrets.BREVO_USER }}
+            BREVO_PASS=${{ secrets.BREVO_PASS }}
+            EMAIL_FROM_ADDRESS=${{ secrets.EMAIL_FROM_ADDRESS }}
+            PAYPAL_REDIRECT_URI=${{ secrets.PAYPAL_REDIRECT_URI }}
+            COGNITO_CALLBACK_URL=${{ secrets.COGNITO_CALLBACK_URL }}
+            COGNITO_DOMAIN=${{ secrets.COGNITO_DOMAIN }}
+            RECOMMENDATION_ENGINE_API=${{ secrets.RECOMMENDATION_ENGINE_API }}
+
+      - name: SSH and Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            docker pull dfanso/quick-quest_backend:latest
+            docker stop quick-quest_backend || true
+            docker rm quick-quest_backend || true
+            docker run -d --name quick-quest_backend -p 4000:9000 dfanso/quick-quest_backend:latest

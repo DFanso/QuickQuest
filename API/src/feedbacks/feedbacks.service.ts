@@ -11,8 +11,8 @@ export class FeedbacksService {
   ) {}
 
   async create(createFeedbackDto: CreateFeedbackDto): Promise<Feedback> {
-    const createdFeedback = new this.feedbackModel(createFeedbackDto);
-    return createdFeedback.save();
+    const createdFeedback = await this.feedbackModel.create(createFeedbackDto);
+    return createdFeedback;
   }
 
   async findAll(filter: {

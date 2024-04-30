@@ -19,15 +19,15 @@ describe('CategoriesService', () => {
 
   beforeEach(async () => {
     const mockModel = {
-      create: jest.fn().mockResolvedValue({
-        save: jest.fn().mockResolvedValue(mockCategory),
-      }),
+      create: jest.fn().mockImplementation((createCategoryDto) => ({
+        ...createCategoryDto,
+        _id: mockCategory._id,
+      })),
       find: jest.fn().mockReturnValue({
         exec: jest.fn().mockResolvedValue([mockCategory]),
       }),
       findOne: jest.fn().mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockCategory),
-        select: jest.fn().mockReturnThis(),
       }),
       findByIdAndUpdate: jest.fn().mockReturnValue({
         exec: jest
@@ -57,10 +57,42 @@ describe('CategoriesService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('create', () => {
+    it('should create a new category', async () => {
+      const createCategoryDto: CreateCategoryDto = {
+        name: 'Electronics',
+        description: 'Devices and gadgets',
+        iconUrl: 'http://example.com/icon.png',
+      };
+
+      const result = await service.create(createCategoryDto);
+      expect(result).toEqual(mockCategory);
+    });
+  });
+
   describe('findAll', () => {
     it('should return all categories', async () => {
       const result = await service.findAll();
       expect(result).toEqual([mockCategory]);
+    });
+  });
+
+  describe('findOne', () => {
+    it('should find a category by filter', async () => {
+      const filter = { name: 'Electronics' };
+      const result = await service.findOne(filter);
+      expect(result).toEqual(mockCategory);
+    });
+
+    it('should throw NotFoundException if category not found', async () => {
+      const filter = { name: 'NonExistentCategory' };
+      jest.spyOn(model, 'findOne').mockReturnValueOnce({
+        exec: jest.fn().mockResolvedValueOnce(null),
+      } as any);
+
+      await expect(service.findOne(filter)).rejects.toThrowError(
+        'Category not found',
+      );
     });
   });
 

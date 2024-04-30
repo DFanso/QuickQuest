@@ -21,9 +21,9 @@ export class UserService {
     private readonly feedBacksService: FeedbacksService,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    const createdUser = new this.userModel(createUserDto);
-    return createdUser.save();
+  async create(createUserDto: CreateUserDto) {
+    const createdUser = await this.userModel.create(createUserDto);
+    return createdUser;
   }
 
   findAll() {
