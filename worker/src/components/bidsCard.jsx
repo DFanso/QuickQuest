@@ -44,7 +44,6 @@ const BidCard = ({ title, description, expireDate, budget, imageUrl, customerId 
 
         const chatId = chatResponse.data.chatId;
 
-        // Send a message regarding the bid to the customer
         await axios.post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/v1/chats/${chatId}/messages`, {
           contentType: 'TEXT',
           content: `Hello, I'm interested in your bid "${description}". Let's discuss further.`

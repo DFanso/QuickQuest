@@ -4,9 +4,13 @@ on:
   pull_request:
     branches:
       - dev # Set this to your default branch
+    paths:
+      - 'API/**'
   push:
     branches:
       - dev # Set this to your default branch
+    paths:
+      - 'API/**'
 
 jobs:
   CI:
