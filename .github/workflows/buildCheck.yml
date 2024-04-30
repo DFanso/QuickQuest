@@ -1,0 +1,43 @@
+name: Next.js Build Check
+
+on:
+  pull_request:
+    branches:
+      - dev # Set this to your default branch
+    paths:
+      - 'admin/**'
+      - 'customer/**'
+      - 'worker/**'
+
+jobs:
+  build-check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [admin, customer, worker]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install Dependencies
+        run: |
+          cd ${{ matrix.project }}
+          npm ci
+
+      - name: Build Project
+        run: |
+          cd ${{ matrix.project }}
+          npm run build
+
+      - name: Export Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.project }}-build
+          path: ${{ matrix.project }}/.next/
+          if-no-files-found: error
