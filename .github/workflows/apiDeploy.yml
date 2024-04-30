@@ -1,4 +1,4 @@
-name: Deploy API TO VPS
+name: API CI/CD
 
 on:
   push:
