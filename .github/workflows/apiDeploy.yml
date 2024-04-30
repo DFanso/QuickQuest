@@ -1,6 +1,9 @@
 name: API CI/CD
 
 on:
+  pull_request:
+    branches:
+      - dev # Set this to your default branch
   push:
     branches:
       - dev # Set this to your default branch
@@ -15,7 +18,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '16'
 
       - name: Install dependencies
         run: |
@@ -30,6 +33,7 @@ jobs:
   deploy:
     needs: test # Ensure the test job passes before deploying
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' # Only run on push events
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
