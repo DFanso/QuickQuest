@@ -104,11 +104,24 @@ const router = useRouter();
       newErrors.password = 'Password is required';
       isValid = false;
     }  else {
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-      if (!passwordRegex.test(formData.password)) {
-        newErrors.password = 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)';
+      const password = formData.password;
+      if (password.length < 8) {
+        newErrors.password = 'Password must be at least 8 characters long';
         isValid = false;
-      }}
+      } else if (!/[A-Z]/.test(password)) {
+        newErrors.password = 'Password must contain at least one uppercase letter';
+        isValid = false;
+      } else if (!/[a-z]/.test(password)) {
+        newErrors.password = 'Password must contain at least one lowercase letter';
+        isValid = false;
+      } else if (!/\d/.test(password)) {
+        newErrors.password = 'Password must contain at least one number';
+        isValid = false;
+      } else if (!/[@$!%*?&|#]/.test(password)) {
+        newErrors.password = 'Password must contain at least one special character';
+        isValid = false;
+      }
+    }
 
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
