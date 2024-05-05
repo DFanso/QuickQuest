@@ -83,17 +83,17 @@ const OrderCard = ({ order }) => {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row mt-4 mx-4 mx-20 items-center justify-between p-4 bg-white rounded text-black shadow" style={{ boxShadow: '0px 0px 4px 0px rgba(0, 0, 0, 0.25)', borderRadius: '5px' }}>
-      <img src={worker.profileImage} alt={`${worker.firstName} ${worker.lastName}`} className="rounded-full h-12 w-12 mb-4 sm:mb-0 object-cover" />
-      <span>{`${worker.firstName} ${worker.lastName}`}</span>
-      <span>Order ID: {_id}</span>
-      <span className="flex items-center">
+    <div className="flex flex-col sm:flex-row mt-4 mx-4 mx-20 items-center text-xs justify-between p-4 bg-white rounded text-black shadow" style={{ boxShadow: '0px 0px 4px 0px rgba(0, 0, 0, 0.25)', borderRadius: '5px' }}>
+      <img src={worker.profileImage} alt={`${worker.firstName} ${worker.lastName}`} className="rounded-full h-12 w-12 mb-4 sm:mb-0 object-cover mr-4 " />
+      <span className="text-sm sm:text-base">{`${worker.firstName} ${worker.lastName}`}</span>
+      <span className="text-sm sm:text-base">Order ID: {_id}</span>
+      <span className="flex items-center text-sm sm:text-base">
         <img src={service.category.iconUrl} alt="Task Icon" className="h-6 w-6 mr-2" />
         {service.name}
       </span>
-      <span>Ordered on: {new Date(orderedDate).toLocaleDateString()}</span>
-      <span>Due on {new Date(deliveryDate).toLocaleDateString()}</span>
-      <span>${price}</span>
+      <span className="text-sm sm:text-base">Ordered on: {new Date(orderedDate).toLocaleDateString()}</span>
+      <span className="text-sm sm:text-base">Due on {new Date(deliveryDate).toLocaleDateString()}</span>
+      <span className="text-sm sm:text-base mr-4 ">${price}</span>
       <div className='flex md:mt-0 mt-2'>
         <button
           className="bg-teal-500 hover:bg-teal-800 duration-700 text-white py-1.5 px-4 rounded"
@@ -132,8 +132,8 @@ const OrderCard = ({ order }) => {
 const PastOrderCard = ({ order }) => {
   const { service, worker, orderedDate, deliveryDate, price, status, _id } = order;
   return (
-    <div className="flex flex-col sm:flex-row mt-4 mx-4 mx-20 items-center justify-between p-4 bg-white rounded text-black shadow" style={{ boxShadow: '0px 0px 4px 0px rgba(0, 0, 0, 0.25)', borderRadius: '5px' }}>
-      <img src={worker.profileImage} alt={`${worker.firstName} ${worker.lastName}`} className="rounded-full h-12 w-12 mb-4 sm:mb-0 object-cover" />
+    <div className="flex flex-col sm:flex-row mt-4 mx-4 mx-20 items-center justify-between p-4 bg-white rounded text-black text-xs md:text-sm shadow" style={{ boxShadow: '0px 0px 4px 0px rgba(0, 0, 0, 0.25)', borderRadius: '5px' }}>
+      <img src={worker.profileImage} alt={`${worker.firstName} ${worker.lastName}`} className="rounded-full h-12 w-12 mb-4 sm:mb-0 object-cover mr-4 " />
       <span>{`${worker.firstName} ${worker.lastName}`}</span>
       <span>Order ID: {_id}</span>
 
@@ -146,7 +146,7 @@ const PastOrderCard = ({ order }) => {
       </span>
       <span>Ordered on: {new Date(orderedDate).toLocaleDateString()}</span>
       <span>Due on {new Date(deliveryDate).toLocaleDateString()}</span>
-      <span>${price}</span>
+      <span className="mr-4 ">${price}</span>
       <div className="flex md:mt-0 mt-2">
         <button
           className={`${status === "CANCELLED" ? "bg-red-500 " : "bg-teal-500"} text-white py-1.5 px-4 rounded`}
@@ -206,7 +206,7 @@ const UserProfilePage = () => {
 
       const locationName = geocodingData.display_name
       .split(",")
-      .slice(0, 4)
+      .slice(1, 4)
       .join(", ");
 
       setUserProfile({ firstName, lastName, profileImage, longitude, latitude, locationName });
@@ -290,7 +290,7 @@ const UserProfilePage = () => {
           </div>
         )}
         {!isLoading && (
-          <div className="text-black mt-6">
+          <div className="text-black mt-6 ">
             <img src={userProfile?.profileImage} alt="User Name" className="rounded-full h-24 w-24 mx-auto text-center object-cover" />
             <h1 className="text-xl font-medium mt-4 text-center">{userProfile?.firstName} {userProfile?.lastName}</h1>
             <div className="flex items-center justify-center mt-1">
