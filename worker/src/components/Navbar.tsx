@@ -22,9 +22,6 @@ const Navbar = () => {
                 <Link href="/">
                     <span className="text-black hover:text-teal-500 text-base transition duration-500">Home</span>
                 </Link>
-                <Link href="/Bids">
-                    <span className="text-black hover:text-teal-500 text-base transition duration-500">Bids</span>
-                </Link>
                 <Link href="/login">
                     <span className="text-black hover:text-teal-500 text-base transition duration-500">Login</span>
                 </Link>
@@ -60,9 +57,6 @@ const Navbar = () => {
                         <div className="px-5 py-2">
                             <Link href="/">
                                 <span onClick={closeMenu} className="text-black hover:text-teal-500 block px-3 py-2 text-xl font-medium">Home</span>
-                            </Link>
-                            <Link href="/bids">
-                                <span onClick={closeMenu} className="text-black hover:text-teal-500 block px-3 py-2 text-xl font-medium">Bids</span>
                             </Link>
                             <Link href="/login">
                                 <span onClick={closeMenu} className="text-black hover:text-teal-500 block px-3 py-2 text-xl font-medium">Login</span>

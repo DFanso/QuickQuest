@@ -12,7 +12,6 @@ import React, { ReactNode } from 'react';
 const inter = Inter({ subsets: ["latin"] });
 
 
-// Define props type for AuthenticatedLayout
 type AuthenticatedLayoutProps = {
   children: ReactNode;
 };
