@@ -100,8 +100,7 @@ export default function Home() {
     <input
       type="text"
       placeholder="What do you want to get done?"
-      className="p-2 w-2/4 sm:w-2/3 md:w-1/2 lg:w-1/2 xl:w-1/4 border border-gray-400 rounded-l-lg text-sm md:text-base h-10" // Added h-10 for a height of 40px
-      value={searchInput}
+      className="p-2 w-2/4 sm:w-2/3 md:w-1/2 lg:w-1/2 xl:w-1/4 border border-gray-400 rounded-l-lg text-sm md:text-base h-10" 
       onChange={handleSearchInputChange}
     />
     {searchInput && (

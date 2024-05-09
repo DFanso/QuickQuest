@@ -6,14 +6,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateJobDto } from './dto/create-job.dto';
-import { Offer } from 'src/offers/entities/offer.entity';
+import { Offer } from '../offers/entities/offer.entity';
 import { Job, JobDocument } from './entities/job.entity';
-import { User } from 'src/user/entities/user.entity';
-import { JobStatus } from 'src/Types/jobs.types';
+import { User } from '../user/entities/user.entity';
+import { JobStatus } from '../Types/jobs.types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { PaypalService } from 'src/paypal/paypal.service';
-import { EmailService } from 'src/email/email.service';
+import { PaypalService } from '../paypal/paypal.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class JobsService {
@@ -37,8 +37,7 @@ export class JobsService {
       paypalOrderId: '',
     };
 
-    const createdJob = new this.jobModel(createJobDto);
-    await createdJob.save();
+    const createdJob = await this.jobModel.create(createJobDto);
 
     // Populate the service name
     await createdJob.populate('service', 'name');
