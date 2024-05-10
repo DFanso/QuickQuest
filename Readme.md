@@ -155,21 +155,24 @@ Usage:
 1. Admin Application:
     - Open the Admin application in your web browser.
     - Log in using the admin credentials.
-    - Manage user accounts, services, and categories.
-    - Monitor system performance and generate reports.
+    - Manage services, and categories.
+    - Monitor Orders revenues and charts.
 2. Customer Application:
     - Open the Customer application in your web browser.
     - Sign up or log in to your customer account.
     - Search for services using keywords, filters, and categories.
     - View service details, provider profiles, and ratings.
+    - Create own Bids to your budget and preference
+    - Chat with Workers
     - Book services and make payments through the integrated PayPal gateway.
-    - Rate and review services after completion.
+    - Rate and review Jobs after completion.
 3. Worker Application:
     - Open the Worker application in your web browser.
     - Sign up or log in to your worker account.
+    - View Bids from Customers
     - Create and manage your service listings.
     - Set your availability and pricing.
-    - Accept or decline booking requests.
+    - Send Offer to Customers.
     - Communicate with customers using the in-app messaging system.
 4. API:
     - The API serves as the backend for the QuickQuest platform.
