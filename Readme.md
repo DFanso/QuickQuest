@@ -1,3 +1,9 @@
+<h1 align="center" id="title">QuickQuest: Streamlining Gig Economy Connections</h1>
+
+![Banner](https://github.com/DFanso/QuickQuest/blob/main/Poster.png)
+
+### QuickQuest is a cutting-edge platform that connects customers with laborers based on location and service needs. It enables seamless communications and negotiations by utilizing MongoDB for precise geospatial queries and incorporating a real-time chat feature via Server-Sent Events (SSE). Laborers can send tailored bids with service details and pricing, while a recommendation engine, powered by Python and machine learning, enhances match accuracy. Transactions are secure, and facilitated by PayPal, with Brevo managing notification emails. QuickQuest ensures laborers receive 90% of earnings, with a minimal platform commission of 8%. The platform spans three responsive frontends for different user roles, built with Next.js and Tailwind CSS, and integrates AWS Cognito for robust authentication. Deployments are handled via Vercel and Ubuntu VPS, ensuring reliability and scalability.
+
 # User Guide
 
 System Requirements:
@@ -11,7 +17,7 @@ To run QuickQuest, ensure that your system meets the following minimum requireme
 - Storage: 10 GB of free disk space
 - Web Browser: Google Chrome (latest version), Mozilla Firefox (latest version), or Microsoft Edge (latest version)
 
-Installation:
+🛠️ Installation:
 
 1. Clone the QuickQuest repository from GitHub:
     
